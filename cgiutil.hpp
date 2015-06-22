@@ -58,6 +58,10 @@ public:
 
         return in.gcount();
     }
+
+    operator In&() {
+        return in;
+    }
 };
 
 template <
@@ -100,9 +104,6 @@ template <
     class Err = std::ostream
 >
 class FCgiCC: public FCgiIO<Env, In, Out, Err>, public cgicc::Cgicc {
-protected:
-    using FCgiIO<Env, In, Out, Err>::input;
-
 public:
     FCgiCC(
         FCGX_Request &req,
@@ -111,8 +112,44 @@ public:
         Err &_err
     ):
         FCgiIO<Env, In, Out, Err>{req, _in, _out, _err},
-        cgicc::Cgicc{&input}
+        cgicc::Cgicc{&this->input}
     {
         // nothing
     }
+
+    In &s_in() {
+        return this->input;
+    }
+
+    Out &s_out() {
+        return this->out;
+    }
+
+    Err &s_err() {
+        return this->err;
+    }
 };
+
+template <class T, class... Args>
+FCgiCC<Args...> &operator>>(FCgiCC<Args...> &cgi, T obj) {
+    cgi.s_in() >> obj;
+    return cgi;
+}
+
+template <class T, class... Args>
+FCgiCC<Args...> &operator<<(FCgiCC<Args...> &cgi, T obj) {
+    cgi.s_out() << obj;
+    return cgi;
+}
+
+template <class... Args>
+FCgiCC<Args...> &operator>>(FCgiCC<Args...> &cgi, std::istream &(*pf)(std::istream &)) {
+    cgi.s_in() >> pf;
+    return cgi;
+}
+
+template <class... Args>
+FCgiCC<Args...> &operator<<(FCgiCC<Args...> &cgi, std::ostream &(*pf)(std::ostream &)) {
+    cgi.s_out() << pf;
+    return cgi;
+}
