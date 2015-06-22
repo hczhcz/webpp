@@ -65,6 +65,23 @@ public:
 };
 
 template <
+    class Out = std::ostream
+>
+class FCgiOutput {
+private:
+    Out &out;
+
+public:
+    FCgiOutput(Out &_out): out{_out} {}
+    FCgiOutput(const FCgiOutput &obj): out{obj.out} {}
+    FCgiOutput(FCgiOutput &&obj): out{obj.out} {}
+
+    operator Out&() {
+        return out;
+    }
+};
+
+template <
     class Env = std::unordered_map<std::string, std::string>,
     class In = std::istream,
     class Out = std::ostream,
@@ -78,8 +95,8 @@ private:
 
 protected:
     FCgiInput<Env, In> input;
-    Out &out;
-    Err &err;
+    FCgiOutput<Out> output;
+    FCgiOutput<Err> error;
 
 public:
     FCgiIO(
@@ -89,7 +106,7 @@ public:
         Err &_err
     ):
         in_buf{req.in}, out_buf{req.out}, err_buf{req.err},
-        input{req.envp, _in}, out{_out}, err{_err}
+        input{req.envp, _in}, output{_out}, error{_err}
     {
         _in.rdbuf(&in_buf);
         _out.rdbuf(&out_buf);
@@ -122,32 +139,32 @@ public:
     }
 
     Out &s_out() {
-        return this->out;
+        return this->output;
     }
 
     Err &s_err() {
-        return this->err;
+        return this->error;
     }
 
     template <class T>
     auto operator>>(T obj) -> decltype(*this) {
-        this->input >> obj;
+        this->s_in() >> obj;
         return *this;
     }
 
     template <class T>
     auto operator<<(T obj) -> decltype(*this) {
-        this->out << obj;
+        this->s_out() << obj;
         return *this;
     }
 
     auto operator>>(In &(*pf)(In &)) -> decltype(*this) {
-        this->input >> pf;
+        this->s_in() >> pf;
         return *this;
     }
 
     auto operator<<(Out &(*pf)(Out &)) -> decltype(*this) {
-        this->out << pf;
+        this->s_out() << pf;
         return *this;
     }
 };
