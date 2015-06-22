@@ -128,28 +128,26 @@ public:
     Err &s_err() {
         return this->err;
     }
+
+    template <class T>
+    auto operator>>(T obj) -> decltype(*this) {
+        this->input >> obj;
+        return *this;
+    }
+
+    template <class T>
+    auto operator<<(T obj) -> decltype(*this) {
+        this->out << obj;
+        return *this;
+    }
+
+    auto operator>>(In &(*pf)(In &)) -> decltype(*this) {
+        this->input >> pf;
+        return *this;
+    }
+
+    auto operator<<(Out &(*pf)(Out &)) -> decltype(*this) {
+        this->out << pf;
+        return *this;
+    }
 };
-
-template <class T, class... Args>
-FCgiCC<Args...> &operator>>(FCgiCC<Args...> &cgi, T obj) {
-    cgi.s_in() >> obj;
-    return cgi;
-}
-
-template <class T, class... Args>
-FCgiCC<Args...> &operator<<(FCgiCC<Args...> &cgi, T obj) {
-    cgi.s_out() << obj;
-    return cgi;
-}
-
-template <class... Args>
-FCgiCC<Args...> &operator>>(FCgiCC<Args...> &cgi, std::istream &(*pf)(std::istream &)) {
-    cgi.s_in() >> pf;
-    return cgi;
-}
-
-template <class... Args>
-FCgiCC<Args...> &operator<<(FCgiCC<Args...> &cgi, std::ostream &(*pf)(std::ostream &)) {
-    cgi.s_out() << pf;
-    return cgi;
-}
