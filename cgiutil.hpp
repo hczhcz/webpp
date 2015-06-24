@@ -32,8 +32,9 @@ public:
 
             if (*pos) {
                 // '=' found
+                *pos = '\0';
                 env.insert({
-                    std::string{begin, static_cast<size_t>(pos - begin)},
+                    std::string{begin},
                     std::string{pos + 1}
                 });
             } else {
