@@ -1,3 +1,4 @@
+#include "reflection++/visitor_chain.hpp"
 #include "reflection++/visitor/strtree.hpp"
 #include "reflection++/visitor/json.hpp"
 #include "reflection++/accessor_infer.hpp"
@@ -10,6 +11,11 @@
 
 namespace demo {
 
+RPP_VISITOR_CHAIN_INIT()
+RPP_VISITOR_REG(rpp::VisitorIStrTree<FCgiCC<> &>)
+RPP_VISITOR_REG(rpp::VisitorJSON<FCgiCC<>>)
+RPP_VISITOR_COLLECT(VisitorList)
+
 RPP_ACCESSOR_INFER_INIT()
 
 struct Person {
@@ -18,9 +24,9 @@ struct Person {
 };
 
 RPP_TYPE_OBJECT(
-    Person,
     __(name)
-    __(age)
+    __(age),
+    Person
 )
 
 void exec() {
@@ -38,14 +44,8 @@ void exec() {
             Person person{"hcz", 20};
 
             rpp::MetaImpl<
-                rpp::TypeList<
-                    rpp::VisitorIStrTree<FCgiCC<> &>,
-                    rpp::VisitorJSON<FCgiCC<>>
-                >,
-                RPP_ACCESSOR_GET(
-                    RPP_HOLDER_STR("me"),
-                    RPP_HOLDER_DYNAMIC(Person)
-                )
+                VisitorList,
+                RPP_ACCESSOR_GET_AS("person", DYNAMIC, Person)
             > meta{person};
 
             rpp::VisitorIStrTree<FCgiCC<> &> v_arg{cgi};
