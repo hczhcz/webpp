@@ -167,4 +167,8 @@ public:
         this->s_out() << pf;
         return *this;
     }
+
+    std::string operator[](const std::string &key) {
+        return this->getElement(key)->getValue();
+    }
 };
