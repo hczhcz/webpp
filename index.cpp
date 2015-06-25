@@ -6,14 +6,14 @@
 
 #include "cgiutil.hpp"
 
-#include "cgicc/HTTPHTMLHeader.h"
+#include "cgicc/HTTPContentHeader.h"
 #include "cgicc/HTMLClasses.h"
 
 namespace demo {
 
 RPP_VISITOR_CHAIN_INIT()
-RPP_VISITOR_REG(rpp::VisitorIStrTree<FCgiCC<> &>)
-RPP_VISITOR_REG(rpp::VisitorJSON<FCgiCC<>>)
+RPP_VISITOR_REG(rpp::VisitorIStrTree<cgicc::FCgiCC<> &>)
+RPP_VISITOR_REG(rpp::VisitorJSON<cgicc::FCgiCC<>>)
 RPP_VISITOR_COLLECT(VisitorList)
 
 RPP_ACCESSOR_INFER_INIT()
@@ -29,53 +29,31 @@ RPP_TYPE_OBJECT(
     Person
 )
 
-void exec() {
-    FCGX_Request request;
+void exec(cgicc::FCgiCC<> &cgi) {
+    // cgi << cgicc::HTTPContentHeader("application/json");
+    cgi << "Content-Type: application/json; charset=utf-8;\r\n\r\n";
 
-    FCGX_Init();
-    FCGX_InitRequest(&request, 0, 0);
+    Person person{"hcz", 20};
 
-    while (FCGX_Accept_r(&request) == 0) {
-        try {
-            FCgiCC<> cgi{request, std::cin, std::cout, std::cerr};
+    rpp::MetaImpl<
+        VisitorList,
+        RPP_ACCESSOR_GET_AS("person", DYNAMIC, Person)
+    > meta{person};
 
-            cgi << "Content-Type: application/json; charset=utf-8\r\n\r\n";
+    rpp::VisitorIStrTree<cgicc::FCgiCC<> &> v_arg{cgi};
+    meta.doVisit(v_arg);
+    rpp::VisitorJSON<cgicc::FCgiCC<>> v_json{cgi};
+    meta.doVisit(v_json);
+}
 
-            Person person{"hcz", 20};
-
-            rpp::MetaImpl<
-                VisitorList,
-                RPP_ACCESSOR_GET_AS("person", DYNAMIC, Person)
-            > meta{person};
-
-            rpp::VisitorIStrTree<FCgiCC<> &> v_arg{cgi};
-            meta.doVisit(v_arg);
-            rpp::VisitorJSON<FCgiCC<>> v_json{cgi};
-            meta.doVisit(v_json);
-
-            // cgi << cgicc::HTTPHTMLHeader() << std::endl;
-
-            // cgi << cgicc::html() << std::endl;
-            // cgi << cgicc::body() << std::endl;
-
-            // cgi << "Hello<br />";
-
-            // cgicc::form_iterator name = cgi.getElement("name");
-            // if (name != cgi.getElements().end()) {
-            //     cgi << "Your name: " << **name << std::endl;
-            // }
-
-            // cgi << cgicc::body() << cgicc::html() << std::endl;
-        } catch (const std::exception &e) {
-            //
-        }
-    }
+void err(const std::exception &) {
+    // ignore
 }
 
 }
 
 int main() {
-    demo::exec();
+    fcgicc_exec(demo::exec, demo::err);
 
     return 0;
 }
