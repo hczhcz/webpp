@@ -39,10 +39,7 @@ public:
                 });
             } else {
                 // '=' not found
-                env.insert({
-                    begin,
-                    ""
-                });
+                throw std::exception{};
             }
         }
     }
@@ -115,6 +112,7 @@ public:
     }
 };
 
+// CGICC main object with FastCGI integration
 template <
     class Env = std::unordered_map<std::string, std::string>,
     class In = std::istream,
@@ -170,6 +168,18 @@ public:
     }
 
     std::string operator[](const std::string &key) {
-        return this->getElement(key)->getValue();
+        if (!this->getElement(key)->isEmpty()) {
+            return this->getElement(key)->getStrippedValue();
+        } else {
+            return "";
+        }
+    }
+
+    std::string at(const std::string &key) {
+        if (!this->getElement(key)->isEmpty()) {
+            return this->getElement(key)->getStrippedValue();
+        } else {
+            throw std::exception{};
+        }
     }
 };
