@@ -2,8 +2,8 @@
 
 #include <unordered_map>
 
-#include "fcgio.h"
-#include "cgicc/Cgicc.h"
+#include <fcgio.h>
+#include <cgicc/Cgicc.h>
 
 namespace cgicc {
 

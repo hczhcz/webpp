@@ -1,7 +1,6 @@
 #include "reflection++/visitor_chain.hpp"
 #include "reflection++/visitor/strtree.hpp"
 #include "reflection++/visitor/json.hpp"
-#include "reflection++/accessor_infer.hpp"
 #include "reflection++/meta.hpp"
 
 #include "cgiutil.hpp"
@@ -31,10 +30,9 @@ void exec(cgicc::FCgiCC<> &cgi) {
 
     Person person{"hcz", 20};
 
-    rpp::MetaImpl<
-        VisitorList,
-        RPP_ACCESSOR_GET_AS("person", DYNAMIC, Person)
-    > meta{person};
+    RPP_META_DYNAMIC(
+        "person", Person, VisitorList
+    ) meta{person};
 
     rpp::VisitorIStrTree<cgicc::FCgiCC<> &> v_arg{cgi};
     meta.doVisit(v_arg);
