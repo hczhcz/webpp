@@ -169,7 +169,7 @@ public:
         return *this;
     }
 
-    std::string operator[](const std::string &key) {
+    const std::string operator[](const std::string &key) {
         if (!this->getElement(key)->isEmpty()) {
             return this->getElement(key)->getStrippedValue();
         } else {
@@ -177,7 +177,7 @@ public:
         }
     }
 
-    std::string at(const std::string &key) {
+    const std::string at(const std::string &key) {
         if (!this->getElement(key)->isEmpty()) {
             return this->getElement(key)->getStrippedValue();
         } else {

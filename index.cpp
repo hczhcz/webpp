@@ -6,9 +6,6 @@
 
 #include "cgiutil.hpp"
 
-#include "cgicc/HTTPContentHeader.h"
-#include "cgicc/HTMLClasses.h"
-
 namespace demo {
 
 RPP_VISITOR_CHAIN_INIT()
@@ -30,7 +27,6 @@ RPP_TYPE_OBJECT(
 )
 
 void exec(cgicc::FCgiCC<> &cgi) {
-    // cgi << cgicc::HTTPContentHeader("application/json");
     cgi << "Content-Type: application/json; charset=utf-8;\r\n\r\n";
 
     Person person{"hcz", 20};
