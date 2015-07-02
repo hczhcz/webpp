@@ -14,6 +14,11 @@ RPP_VISITOR_COLLECT(VisitorList)
 
 namespace bookstore {
 
+// TODO: not implemented
+std::string crypt_password(const std::string user, const std::string pass) {
+    return user + pass; // TODO
+}
+
 template <class DB, class T>
 std::string db_insert(DB &db, T value) {
     rpp::VisitorBSON<> doc{};
@@ -26,10 +31,12 @@ std::string db_insert(DB &db, T value) {
 
     db.insert_one(doc.view());
 
-    return value._id.to_string();
+    return value._id;
 }
 
 void exec(cgicc::FCgiCC<> &cgi) {
+    cgi << "Content-Type: text/plain; charset=utf-8;\r\n\r\n";
+
     mongocxx::instance inst{};
     mongocxx::client conn{};
 
@@ -39,54 +46,199 @@ void exec(cgicc::FCgiCC<> &cgi) {
     auto db_user = db["user"];
     auto db_buy = db["buy"];
 
+    cgi << "delete...\r\n";
+
     db_cat.delete_many({});
     db_book.delete_many({});
     db_user.delete_many({});
     db_buy.delete_many({});
 
-    std::string cat_id_st = db_insert(db_cat, Cat{
-        oid_str{}, maybe<std::string>{},
+    cgi << "add users...\r\n";
+
+    auto user_id_1 = db_insert(db_user, User{
+        oid_str{},
+        "hczhcz@example.com", "hczhcz", nullptr, "Hi! I am [HCZ](https://github.com/hczhcz).",
+        crypt_password("hczhcz", "123456"), "Shanghai", "Room 101, No 1, Some Rd",
+        true, 0, 0, 0, time(nullptr), time(nullptr)
+    });
+
+    auto user_id_2 = db_insert(db_user, User{
+        oid_str{},
+        "zacks@example.net", "zacks", nullptr, "Hi! I am Zacks.",
+        crypt_password("zacks", "123456"), "New York", "Room 233, No 2, Another Rd",
+        false, 0, 0, 0, time(nullptr), time(nullptr)
+    });
+
+    auto user_id_3 = db_insert(db_user, User{
+        oid_str{},
+        "yexiao@example.org", "夜宵", nullptr, "你好，我是夜宵！",
+        crypt_password("夜宵", "12345678"), "闵大荒", "东川路水上乐园",
+        false, 0, 0, 0, time(nullptr), time(nullptr)
+    });
+
+    auto user_id_4 = db_insert(db_user, User{
+        oid_str{},
+        "lzsd@example.info", "栗子书店", nullptr, "你好，我们只是举个*栗子*！",
+        crypt_password("栗子书店", "1234567890"), "五角场", "李达三楼 四楼",
+        false, 0, 0, 0, time(nullptr), time(nullptr)
+    });
+
+    cgi << "add catalogs...\r\n";
+
+    auto cat_id_1 = db_insert(db_cat, Cat{
+        oid_str{}, nullptr,
         "科学技术", "13dd167159a652a278fe0860a0abf468", "这是科学技术类图书。",
         0, 0, 0
     });
 
-    db_insert(db_cat, Cat{
-        oid_str{}, maybe<std::string>{},
+    auto cat_id_2 = db_insert(db_cat, Cat{
+        oid_str{}, nullptr,
         "休闲娱乐", "1155b9cf0f24f8d2c2da854e62a4bbef", "这是休闲娱乐类图书。",
         0, 0, 0
     });
 
-    db_insert(db_cat, Cat{
-        oid_str{}, maybe<std::string>{},
+    auto cat_id_3 = db_insert(db_cat, Cat{
+        oid_str{}, nullptr,
         "医疗健康", "59d9e827ccb1947002ac8acd50e38e17", "这是医疗健康类图书。",
         0, 0, 0
     });
 
-    db_insert(db_cat, Cat{
-        oid_str{}, maybe<std::string>{},
+    auto cat_id_4 = db_insert(db_cat, Cat{
+        oid_str{}, nullptr,
         "外文图书", "720b75954179401f4f80bc8a91bc90e7", "Books in English are listed here.",
         0, 0, 0
     });
 
-    db_insert(db_cat, Cat{
-        oid_str{}, maybe<std::string>{cat_id_st},
+    auto cat_id_1_1 = db_insert(db_cat, Cat{
+        oid_str{}, cat_id_1,
         "物理", "2f861d02192743a1c1cf2f32adec97b8", "这是科学技术类中的物理类图书。",
         0, 0, 0
     });
 
-    db_insert(db_cat, Cat{
-        oid_str{}, maybe<std::string>{cat_id_st},
+    auto cat_id_1_2 = db_insert(db_cat, Cat{
+        oid_str{}, cat_id_1,
         "化学", "732e1de1c5a204f76d869059462e8481", "这是科学技术类中的化学类图书。",
         0, 0, 0
     });
 
-    db_insert(db_cat, Cat{
-        oid_str{}, maybe<std::string>{cat_id_st},
+    auto cat_id_1_3 = db_insert(db_cat, Cat{
+        oid_str{}, cat_id_1,
         "计算机", "ae2e4dbc9b2a993cd9ee98f0a37e8319", "这是科学技术类中的计算机类图书。",
         0, 0, 0
     });
 
-    cgi << "Content-Type: text/plain; charset=utf-8;\r\n\r\n";
+    cgi << "add books...\r\n";
+
+    auto book_id_1 = db_insert(db_book, Book{
+        oid_str{}, user_id_1, cat_id_1_1,
+        "《费曼物理讲义》", "b8d6c33eba8faac86a6ce07a045885e0", "这是一本书。",
+        "978-7-...-1", "RMB 100.00", 1,
+        0, time(nullptr)
+    });
+
+    auto book_id_2 = db_insert(db_book, Book{
+        oid_str{}, user_id_1, cat_id_1_3,
+        "《PHP是世界上最好的语言》", nullptr, "这本书卖断货了。",
+        "978-7-...-2", "RMB 1000.00", 0,
+        0, time(nullptr)
+    });
+
+    auto book_id_3_1 = db_insert(db_book, Book{
+        oid_str{}, user_id_2, cat_id_1_3,
+        "《黑客与画家》", "7ca2b1d775467ae1dee4d3e5c32e1917", "这是由个人售出的一本书。",
+        "978-7-...-3", "RMB 50.00", 5,
+        0, time(nullptr)
+    });
+
+    auto book_id_3_2 = db_insert(db_book, Book{
+        oid_str{}, user_id_4, cat_id_1_3,
+        "《黑客与画家》", "39d2a2e26c02253612f4a55573c19482", "这是由书店售出的一本书。",
+        "978-7-...-3", "RMB 49.80", 200,
+        0, time(nullptr)
+    });
+
+    auto book_id_4 = db_insert(db_book, Book{
+        oid_str{}, user_id_4, cat_id_1_3,
+        "《编程珠玑》", "8bf06d05f26022537a1ff66a54a98349", "这是一本计算机类图书。",
+        "978-7-...-4", "RMB 59.80", 300,
+        0, time(nullptr)
+    });
+
+    auto book_id_5 = db_insert(db_book, Book{
+        oid_str{}, user_id_4, cat_id_3,
+        "《颈椎病康复指南》", nullptr, "这是一本医疗健康类图书。",
+        "978-7-...-5", "RMB 29.80", 1200,
+        0, time(nullptr)
+    });
+
+    auto book_id_x = db_insert(db_book, Book{
+        oid_str{}, user_id_4, cat_id_1,
+        "《井字棋必胜策略》", nullptr, "这是一本免费的科学技术类图书。",
+        "n/a", "Free", 100000,
+        0, time(nullptr)
+    });
+
+    auto book_id_6 = db_insert(db_book, Book{
+        oid_str{}, user_id_4, cat_id_4,
+        "Database System Concepts", "f2a70b0b3a0306eb050d566c2a458a6b", "This is a book.",
+        "978-7-...-6", "USD 20.00", 100,
+        0, time(nullptr)
+    });
+
+    cgi << "add orders...\r\n";
+
+    db_insert(db_buy, Buy{
+        oid_str{}, user_id_1, book_id_2,
+        "地址1", "好评",
+        time(nullptr), time(nullptr), time(nullptr)
+    });
+    db_insert(db_buy, Buy{
+        oid_str{}, user_id_3, book_id_3_1,
+        "地址2", nullptr,
+        time(nullptr), nullptr, nullptr
+    });
+    db_insert(db_buy, Buy{
+        oid_str{}, user_id_1, book_id_3_2,
+        "地址3", nullptr,
+        time(nullptr), time(nullptr), nullptr
+    });
+    db_insert(db_buy, Buy{
+        oid_str{}, user_id_2, book_id_3_2,
+        "地址4", nullptr,
+        time(nullptr), nullptr, nullptr
+    });
+    db_insert(db_buy, Buy{
+        oid_str{}, user_id_3, book_id_3_2,
+        "地址5", nullptr,
+        time(nullptr), time(nullptr), nullptr
+    });
+
+    db_insert(db_buy, Buy{
+        oid_str{}, user_id_3, book_id_3_2,
+        "地址5", nullptr,
+        time(nullptr), time(nullptr), nullptr
+    });
+    db_insert(db_buy, Buy{
+        oid_str{}, user_id_3, book_id_3_2,
+        "地址6", "不错",
+        time(nullptr), time(nullptr), time(nullptr)
+    });
+    db_insert(db_buy, Buy{
+        oid_str{}, user_id_1, book_id_6,
+        "地址1", "**赞**",
+        time(nullptr), time(nullptr), time(nullptr)
+    });
+    db_insert(db_buy, Buy{
+        oid_str{}, user_id_2, book_id_6,
+        "some address", "满意",
+        time(nullptr), time(nullptr), time(nullptr)
+    });
+    db_insert(db_buy, Buy{
+        oid_str{}, user_id_3, book_id_6,
+        "another address", "很好",
+        time(nullptr), time(nullptr), time(nullptr)
+    });
+
     cgi << "ok\r\n";
 }
 
