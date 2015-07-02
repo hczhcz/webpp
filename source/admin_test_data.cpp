@@ -1,14 +1,4 @@
-#include "bookstore_model.hpp"
-#include "bookstore_cgi.hpp"
-
-namespace cgicc {
-
-RPP_VISITOR_CHAIN_INIT()
-RPP_VISITOR_REG(rpp::VisitorIStrTree<FCgiCC<>>)
-RPP_VISITOR_REG(rpp::VisitorJSON<FCgiCC<>>)
-RPP_VISITOR_COLLECT(VisitorList)
-
-}
+#include "../header/bookstore.hpp"
 
 namespace bookstore {
 

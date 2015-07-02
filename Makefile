@@ -10,14 +10,14 @@ LFLAGS = -lfcgi -lfcgi++ \
     `pkg-config --libs cgicc` \
     `pkg-config --libs libmongocxx`
 
-ALL_HPP = $(wildcard *.hpp)
-ALL_CPP = $(wildcard *.cpp)
+ALL_HPP = $(wildcard header/*.hpp)
+ALL_CPP = $(wildcard source/*.cpp)
 ALL_EXIST_FCGI = $(wildcard *.fcgi)
-ALL_TARGET = $(patsubst %.cpp,%.fcgi,$(ALL_CPP))
+ALL_TARGET = $(patsubst source/%.cpp, %.fcgi, $(ALL_CPP))
 
 default: compile
 
-%.fcgi: %.cpp $(ALL_HPP)
+%.fcgi: source/%.cpp $(ALL_HPP)
 	$(CC) $(FLAGS) $(CFLAGS) $(LFLAGS) $< -o $@
 
 compile: $(ALL_TARGET)

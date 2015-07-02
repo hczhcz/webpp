@@ -1,9 +1,4 @@
-#include <bsoncxx/builder/stream/document.hpp>
-#include <bsoncxx/json.hpp>
-#include <mongocxx/options/find.hpp>
-
-#include "bookstore_model.hpp"
-#include "bookstore_cgi.hpp"
+#include "../header/bookstore.hpp"
 
 namespace bookstore {
 

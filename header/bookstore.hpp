@@ -1,17 +1,17 @@
 #pragma once
 
-#include <bsoncxx/oid.hpp>
 #include <mongocxx/client.hpp>
 #include <mongocxx/instance.hpp>
+#include <mongocxx/options/find.hpp>
+#include <bsoncxx/oid.hpp>
+#include <bsoncxx/builder/stream/document.hpp>
+#include <bsoncxx/json.hpp>
 
-#include "reflection++/visitor_chain.hpp"
-#include "reflection++/visitor/strtree.hpp"
-#include "reflection++/visitor/json.hpp"
-#include "reflection++/visitor/bson.hpp"
-#include "reflection++/visitor/bson_view.hpp"
 #include "reflection++/meta.hpp"
 
-#include "cgiutil.hpp"
+#include "bookstore_model.hpp"
+#include "bookstore_bson.hpp"
+#include "bookstore_cgi.hpp"
 
 namespace bookstore {
 
@@ -36,14 +36,5 @@ struct oid_str: public bsoncxx::oid {
         return *this;
     }
 };
-
-RPP_VISITOR_CHAIN_INIT()
-
-// RPP_VISITOR_REG(rpp::VisitorIStrTree<cgicc::FCgiCC<>>)
-// RPP_VISITOR_REG(rpp::VisitorJSON<cgicc::FCgiCC<>>)
-RPP_VISITOR_REG(rpp::VisitorBSON<>)
-RPP_VISITOR_REG(rpp::VisitorBSONView<>)
-
-RPP_VISITOR_COLLECT(VisitorList)
 
 }
