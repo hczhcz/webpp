@@ -1,40 +1,61 @@
 #pragma once
 
+#include <bsoncxx/oid.hpp>
+#include <bsoncxx/builder/stream/document.hpp>
 #include <mongocxx/client.hpp>
 #include <mongocxx/instance.hpp>
 #include <mongocxx/options/find.hpp>
-#include <bsoncxx/oid.hpp>
-#include <bsoncxx/builder/stream/document.hpp>
-#include <bsoncxx/json.hpp>
 
+#include "reflection++/visitor/strtree.hpp"
+#include "reflection++/visitor/json.hpp"
+#include "reflection++/visitor/bson.hpp"
+#include "reflection++/visitor/bson_view.hpp"
 #include "reflection++/meta.hpp"
 
 #include "bookstore_model.hpp"
-#include "bookstore_bson.hpp"
 #include "bookstore_cgi.hpp"
 
 namespace bookstore {
 
-// TODO: simplify this
-struct oid_str: public bsoncxx::oid {
-    oid_str(): bsoncxx::oid{
-        bsoncxx::oid::init_tag
-    } {}
+// visitors
 
-    oid_str(const std::string &str): bsoncxx::oid{
-        bsoncxx::stdx::string_view{str}
-    } {}
+using VisitorListArgs = rpp::TypeList<
+    rpp::VisitorIStrTree<cgicc::FCgiCC<>>
+>;
+using VisitorListJSON = rpp::TypeList<
+    rpp::VisitorJSON<cgicc::FCgiCC<>>
+>;
+using VisitorListDB = rpp::TypeList<
+    rpp::VisitorJSON<cgicc::FCgiCC<>>,
+    rpp::VisitorBSON<>,
+    rpp::VisitorBSONView<>
+>;
 
-    operator std::string() const {
-        return to_string();
+// helper macro and functions
+
+#define BOOKSTORE_DB_CONN() \
+    mongocxx::instance inst{}; \
+    mongocxx::client conn{}; \
+    auto db = conn["bookstore"]; \
+    auto db_cat = db["cat"]; \
+    auto db_book = db["book"]; \
+    auto db_user = db["user"]; \
+    auto db_buy = db["buy"];
+
+#define BOOKSTORE_MAIN(Exec, Err) \
+    int main() { \
+        using namespace bookstore; \
+        fcgicc_exec((Exec), (Err)); \
+        return 0; \
     }
 
-    oid_str &operator=(const std::string &str) {
-        this->~oid_str();
-        new(this) oid_str{str};
+inline std::string genOID() {
+    return bsoncxx::oid{bsoncxx::oid::init_tag}.to_string();
+}
 
-        return *this;
-    }
-};
+// TODO: not implemented
+inline std::string passwordHash(const std::string user, const std::string pass) {
+    return user + pass; // TODO
+}
 
 }

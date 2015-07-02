@@ -2,6 +2,8 @@
 
 namespace bookstore {
 
+BOOKSTORE_DB_CONN()
+
 struct Args {
     std::string cat_id;
 };
@@ -12,26 +14,18 @@ RPP_TYPE_OBJECT(
 )
 
 void exec(cgicc::FCgiCC<> &cgi) {
-    cgi << "Content-Type: application/json; charset=utf-8;\r\n\r\n";
+    cgi << content_type_json;
 
     // args
 
     Args args{};
 
     RPP_META_DYNAMIC(
-        "args", Args, rpp::TypeList<rpp::VisitorIStrTree<cgicc::FCgiCC<>>>
+        "args", Args, VisitorListArgs
     ) args_meta{args};
 
-    rpp::VisitorIStrTree<cgicc::FCgiCC<>> v_arg{cgi};
-    args_meta.doVisit(v_arg);
-
-    // db access
-
-    mongocxx::instance inst{};
-    mongocxx::client conn{};
-
-    auto db = conn["bookstore"];
-    auto db_cat = db["cat"];
+    rpp::VisitorIStrTree<cgicc::FCgiCC<>> args_visitor{cgi};
+    args_meta.doVisit(args_visitor);
 
     // find
 
@@ -42,22 +36,25 @@ void exec(cgicc::FCgiCC<> &cgi) {
             << "_id" << args.cat_id << finalize
     );
 
-    for (auto &&doc: cursor) {
-        cgi << bsoncxx::to_json(doc) << std::endl;
-    }
+    // return
 
-    // rpp::VisitorJSON<cgicc::FCgiCC<>> v_json{cgi};
-    // args_meta.doVisit(v_json);
+    Cat result;
+
+    RPP_META_DYNAMIC(
+        "result", Cat, VisitorListDB
+    ) result_meta{result};
+
+    rpp::VisitorBSONView<> result_visitor{bsoncxx::types::b_document{*(cursor.begin())}};
+    result_meta.doVisit(result_visitor);
+
+    rpp::VisitorJSON<cgicc::FCgiCC<>> output{cgi};
+    result_meta.doVisit(output);
+
+    // for (auto &&doc: cursor) {
+    //     cgi << bsoncxx::to_json(doc) << std::endl;
+    // }
 }
 
-void err(const std::exception &) {
-    // ignore
 }
 
-}
-
-int main() {
-    fcgicc_exec(bookstore::exec, bookstore::err);
-
-    return 0;
-}
+BOOKSTORE_MAIN(exec, ignoreErr)

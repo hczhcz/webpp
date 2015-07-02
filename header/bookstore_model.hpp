@@ -9,31 +9,31 @@ namespace bookstore {
 RPP_ACCESSOR_INFER_INIT()
 
 template <class T>
-struct maybe: public std::unique_ptr<T> {
-    maybe(): std::unique_ptr<T>{} {}
+struct Maybe: public std::unique_ptr<T> {
+    Maybe(): std::unique_ptr<T>{} {}
 
-    maybe(std::nullptr_t): std::unique_ptr<T>{} {}
+    Maybe(std::nullptr_t): std::unique_ptr<T>{} {}
 
     template <class T1>
-    maybe(T1 &&value): std::unique_ptr<T>{
+    Maybe(T1 &&value): std::unique_ptr<T>{
         new T{std::move(value)}
     } {}
 
     template <class T1>
-    maybe(const T1 &value): std::unique_ptr<T>{
+    Maybe(const T1 &value): std::unique_ptr<T>{
         new T{value}
     } {}
 };
 
 template <class T>
-RPP_TYPE_DYNAMIC_GENERIC(T, maybe<T>)
+RPP_TYPE_DYNAMIC_GENERIC(T, Maybe<T>)
 
 struct User {
     std::string _id; // user_id
 
     std::string mail;
     std::string name;
-    maybe<std::string> image;
+    Maybe<std::string> image;
     std::string detail;
     std::string password;
     std::string location;
@@ -58,10 +58,10 @@ RPP_TYPE_OBJECT(
 
 struct Cat {
     std::string _id; // cat_id
-    maybe<std::string> parent_cat_id;
+    Maybe<std::string> parent_cat_id;
 
     std::string name;
-    maybe<std::string> image;
+    Maybe<std::string> image;
     std::string detail;
 
     long cat_count;
@@ -82,7 +82,7 @@ struct Book {
     std::string parent_cat_id;
 
     std::string name;
-    maybe<std::string> image;
+    Maybe<std::string> image;
     std::string detail;
     std::string isbn; // new
     std::string price;
@@ -107,11 +107,11 @@ struct Buy {
     std::string buy_book_id; // seller_user_id, book_name from buy_book_id
 
     std::string address;
-    maybe<std::string> feedback;
+    Maybe<std::string> feedback;
 
     time_t date_create;
-    maybe<time_t> date_accept;
-    maybe<time_t> date_done;
+    Maybe<time_t> date_accept;
+    Maybe<time_t> date_done;
 };
 
 RPP_TYPE_OBJECT(
