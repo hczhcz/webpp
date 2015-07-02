@@ -8,7 +8,7 @@
 namespace demo {
 
 RPP_VISITOR_CHAIN_INIT()
-RPP_VISITOR_REG(rpp::VisitorIStrTree<cgicc::FCgiCC<> &>)
+RPP_VISITOR_REG(rpp::VisitorIStrTree<cgicc::FCgiCC<>>)
 RPP_VISITOR_REG(rpp::VisitorJSON<cgicc::FCgiCC<>>)
 RPP_VISITOR_COLLECT(VisitorList)
 
@@ -34,7 +34,7 @@ void exec(cgicc::FCgiCC<> &cgi) {
         "person", Person, VisitorList
     ) meta{person};
 
-    rpp::VisitorIStrTree<cgicc::FCgiCC<> &> v_arg{cgi};
+    rpp::VisitorIStrTree<cgicc::FCgiCC<>> v_arg{cgi};
     meta.doVisit(v_arg);
     rpp::VisitorJSON<cgicc::FCgiCC<>> v_json{cgi};
     meta.doVisit(v_json);
