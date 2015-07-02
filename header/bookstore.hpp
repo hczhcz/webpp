@@ -1,4 +1,6 @@
-#pragma once
+// pch support
+#ifndef BOOKSTORE_HPP
+#define BOOKSTORE_HPP
 
 #include <bsoncxx/oid.hpp>
 #include <bsoncxx/builder/stream/document.hpp>
@@ -82,3 +84,5 @@ inline std::string passwordHash(const std::string user, const std::string pass) 
 }
 
 }
+
+#endif
