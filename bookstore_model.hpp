@@ -11,8 +11,13 @@ namespace bookstore {
 RPP_ACCESSOR_INFER_INIT()
 
 struct oid_str: public bsoncxx::oid {
-    oid_str(): bsoncxx::oid{bsoncxx::oid::init_tag} {}
-    oid_str(const std::string &str): bsoncxx::oid{stdx::str_view{str}} {}
+    oid_str(): bsoncxx::oid{
+        bsoncxx::oid::init_tag
+    } {}
+
+    oid_str(const std::string &str): bsoncxx::oid{
+        bsoncxx::stdx::string_view{str}
+    } {}
 
     operator std::string() const {
         return to_string();
