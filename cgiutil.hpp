@@ -169,17 +169,24 @@ public:
         return *this;
     }
 
-    const std::string operator[](const std::string &key) {
+    const std::string &operator[](const std::string &key) {
+        static std::string result;
+
         if (!this->getElement(key)->isEmpty()) {
-            return this->getElement(key)->getStrippedValue();
+            result = this->getElement(key)->getStrippedValue();
+            return result;
         } else {
-            return "";
+            result = "";
+            return result;
         }
     }
 
-    const std::string at(const std::string &key) {
+    const std::string &at(const std::string &key) {
+        static std::string result;
+
         if (!this->getElement(key)->isEmpty()) {
-            return this->getElement(key)->getStrippedValue();
+            result = this->getElement(key)->getStrippedValue();
+            return result;
         } else {
             throw std::exception{};
         }
