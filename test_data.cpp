@@ -1,5 +1,3 @@
-#include "reflection++/meta.hpp"
-
 #include "bookstore_model.hpp"
 #include "bookstore_cgi.hpp"
 

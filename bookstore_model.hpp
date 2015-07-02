@@ -2,34 +2,11 @@
 
 #include <memory>
 
-#include <bsoncxx/oid.hpp>
-
 #include "reflection++/accessor_infer.hpp"
 
 namespace bookstore {
 
 RPP_ACCESSOR_INFER_INIT()
-
-struct oid_str: public bsoncxx::oid {
-    oid_str(): bsoncxx::oid{
-        bsoncxx::oid::init_tag
-    } {}
-
-    oid_str(const std::string &str): bsoncxx::oid{
-        bsoncxx::stdx::string_view{str}
-    } {}
-
-    operator std::string() const {
-        return to_string();
-    }
-
-    oid_str &operator=(const std::string &str) {
-        this->~oid_str();
-        new(this) oid_str{str};
-
-        return *this;
-    }
-};
 
 template <class T>
 struct maybe: public std::unique_ptr<T> {
@@ -67,8 +44,8 @@ struct User {
     long book_count;
     long sold_count;
 
-    std::time_t date_create;
-    std::time_t date_login;
+    time_t date_create;
+    time_t date_login;
 };
 
 RPP_TYPE_OBJECT(
@@ -113,7 +90,7 @@ struct Book {
 
     long sold_count;
 
-    std::time_t date_create;
+    time_t date_create;
 };
 
 RPP_TYPE_OBJECT(
@@ -132,9 +109,9 @@ struct Buy {
     std::string address;
     maybe<std::string> feedback;
 
-    std::time_t date_create;
-    maybe<std::time_t> date_accept;
-    maybe<std::time_t> date_done;
+    time_t date_create;
+    maybe<time_t> date_accept;
+    maybe<time_t> date_done;
 };
 
 RPP_TYPE_OBJECT(

@@ -1,16 +1,9 @@
-#include "reflection++/meta.hpp"
+#include <bsoncxx/builder/stream/document.hpp>
+#include <bsoncxx/json.hpp>
+#include <mongocxx/options/find.hpp>
 
 #include "bookstore_model.hpp"
 #include "bookstore_cgi.hpp"
-
-namespace cgicc {
-
-RPP_VISITOR_CHAIN_INIT()
-RPP_VISITOR_REG(rpp::VisitorIStrTree<FCgiCC<>>)
-RPP_VISITOR_REG(rpp::VisitorJSON<FCgiCC<>>)
-RPP_VISITOR_COLLECT(VisitorList)
-
-}
 
 namespace bookstore {
 
@@ -26,17 +19,40 @@ RPP_TYPE_OBJECT(
 void exec(cgicc::FCgiCC<> &cgi) {
     cgi << "Content-Type: application/json; charset=utf-8;\r\n\r\n";
 
+    // args
+
     Args args{};
 
     RPP_META_DYNAMIC(
-        "args", Args, cgicc::VisitorList
+        "args", Args, rpp::TypeList<rpp::VisitorIStrTree<cgicc::FCgiCC<>>>
     ) args_meta{args};
 
     rpp::VisitorIStrTree<cgicc::FCgiCC<>> v_arg{cgi};
     args_meta.doVisit(v_arg);
 
-    rpp::VisitorJSON<cgicc::FCgiCC<>> v_json{cgi};
-    args_meta.doVisit(v_json);
+    // db access
+
+    mongocxx::instance inst{};
+    mongocxx::client conn{};
+
+    auto db = conn["bookstore"];
+    auto db_cat = db["cat"];
+
+    // find
+
+    using namespace bsoncxx::builder::stream;
+
+    auto cursor = db_cat.find(
+        document{}
+            << "_id" << args.cat_id << finalize
+    );
+
+    for (auto &&doc: cursor) {
+        cgi << bsoncxx::to_json(doc) << std::endl;
+    }
+
+    // rpp::VisitorJSON<cgicc::FCgiCC<>> v_json{cgi};
+    // args_meta.doVisit(v_json);
 }
 
 void err(const std::exception &) {
