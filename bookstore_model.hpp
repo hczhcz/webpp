@@ -49,7 +49,7 @@ RPP_TYPE_DYNAMIC_GENERIC(T, maybe<T>)
 
 struct Cat {
     oid_str _id; // cat_id
-    maybe<oid_str> parent_cat_id;
+    maybe<std::string> parent_cat_id;
 
     std::string name;
     std::string image;
@@ -69,8 +69,8 @@ RPP_TYPE_OBJECT(
 
 struct Book {
     oid_str _id; // book_id
-    oid_str owner_user_id;
-    oid_str parent_cat_id;
+    std::string owner_user_id;
+    std::string parent_cat_id;
 
     std::string name;
     std::string image;
@@ -122,8 +122,8 @@ RPP_TYPE_OBJECT(
 
 struct Buy {
     oid_str _id; // buy_id
-    oid_str buyer_user_id;
-    oid_str buy_book_id; // seller_user_id, book_name from buy_book_id
+    std::string buyer_user_id;
+    std::string buy_book_id; // seller_user_id, book_name from buy_book_id
 
     std::string address;
     maybe<std::string> feedback;

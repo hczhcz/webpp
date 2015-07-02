@@ -45,43 +45,43 @@ void exec(cgicc::FCgiCC<> &cgi) {
     db_buy.delete_many({});
 
     std::string cat_id_st = db_insert(db_cat, Cat{
-        oid_str{}, maybe<oid_str>{},
+        oid_str{}, maybe<std::string>{},
         "科学技术", "13dd167159a652a278fe0860a0abf468", "这是科学技术类图书。",
         0, 0, 0
     });
 
     db_insert(db_cat, Cat{
-        oid_str{}, maybe<oid_str>{},
+        oid_str{}, maybe<std::string>{},
         "休闲娱乐", "1155b9cf0f24f8d2c2da854e62a4bbef", "这是休闲娱乐类图书。",
         0, 0, 0
     });
 
     db_insert(db_cat, Cat{
-        oid_str{}, maybe<oid_str>{},
+        oid_str{}, maybe<std::string>{},
         "医疗健康", "59d9e827ccb1947002ac8acd50e38e17", "这是医疗健康类图书。",
         0, 0, 0
     });
 
     db_insert(db_cat, Cat{
-        oid_str{}, maybe<oid_str>{},
+        oid_str{}, maybe<std::string>{},
         "外文图书", "720b75954179401f4f80bc8a91bc90e7", "Books in English are listed here.",
         0, 0, 0
     });
 
     db_insert(db_cat, Cat{
-        oid_str{}, maybe<oid_str>{cat_id_st},
+        oid_str{}, maybe<std::string>{cat_id_st},
         "物理", "2f861d02192743a1c1cf2f32adec97b8", "这是科学技术类中的物理类图书。",
         0, 0, 0
     });
 
     db_insert(db_cat, Cat{
-        oid_str{}, maybe<oid_str>{cat_id_st},
+        oid_str{}, maybe<std::string>{cat_id_st},
         "化学", "732e1de1c5a204f76d869059462e8481", "这是科学技术类中的化学类图书。",
         0, 0, 0
     });
 
     db_insert(db_cat, Cat{
-        oid_str{}, maybe<oid_str>{cat_id_st},
+        oid_str{}, maybe<std::string>{cat_id_st},
         "计算机", "ae2e4dbc9b2a993cd9ee98f0a37e8319", "这是科学技术类中的计算机类图书。",
         0, 0, 0
     });
