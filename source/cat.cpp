@@ -14,18 +14,8 @@ RPP_TYPE_OBJECT(
 )
 
 void exec(cgicc::FCgiCC<> &cgi) {
-    cgi << content_type_json;
-
-    // args
-
-    Args args{};
-
-    RPP_META_DYNAMIC(
-        "args", Args, VisitorListArgs
-    ) args_meta{args};
-
-    rpp::VisitorIStrTree<cgicc::FCgiCC<>> args_visitor{cgi};
-    args_meta.doVisit(args_visitor);
+    Args args;
+    ajaxArgs(cgi, args);
 
     // find
 
@@ -36,7 +26,7 @@ void exec(cgicc::FCgiCC<> &cgi) {
             << "_id" << args.cat_id << finalize
     );
 
-    // return
+    // get data
 
     Cat result;
 
@@ -44,15 +34,12 @@ void exec(cgicc::FCgiCC<> &cgi) {
         "result", Cat, VisitorListDB
     ) result_meta{result};
 
-    rpp::VisitorBSONView<> result_visitor{bsoncxx::types::b_document{*(cursor.begin())}};
+    rpp::VisitorBSONView<> result_visitor{
+        bsoncxx::types::b_document{*(cursor.begin())}
+    };
     result_meta.doVisit(result_visitor);
 
-    rpp::VisitorJSON<cgicc::FCgiCC<>> output{cgi};
-    result_meta.doVisit(output);
-
-    // for (auto &&doc: cursor) {
-    //     cgi << bsoncxx::to_json(doc) << std::endl;
-    // }
+    ajaxReturn(cgi, result);
 }
 
 }

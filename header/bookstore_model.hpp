@@ -8,6 +8,15 @@ namespace bookstore {
 
 RPP_ACCESSOR_INFER_INIT()
 
+// template <class T, size_t size>
+// RPP_TYPE_DYNAMIC_GENERIC(T, T [size])
+template <class T, class... Args>
+RPP_TYPE_DYNAMIC_GENERIC(T, std::vector<T, Args...>)
+// template <class Key, class T, class... Args>
+// RPP_TYPE_DYNAMIC_GENERIC(T, std::unordered_map<Key, T, Args...>)
+// template <class T, class... Args>
+// RPP_TYPE_DYNAMIC_GENERIC(T, std::unique_ptr<T, Args...>)
+
 template <class T>
 struct Maybe: public std::unique_ptr<T> {
     Maybe(): std::unique_ptr<T>{} {}
@@ -27,6 +36,9 @@ struct Maybe: public std::unique_ptr<T> {
 
 template <class T>
 RPP_TYPE_DYNAMIC_GENERIC(T, Maybe<T>)
+
+template <class T>
+struct Subset: public T {};
 
 struct User {
     std::string _id; // user_id
@@ -56,9 +68,16 @@ RPP_TYPE_OBJECT(
     User
 )
 
+RPP_TYPE_OBJECT(
+    __(_id)
+    __(name) __(image) __(detail) __(location)
+    __(book_count) __(sold_count),
+    Subset<User>
+)
+
 struct Cat {
     std::string _id; // cat_id
-    Maybe<std::string> parent_cat_id;
+    std::string parent_cat_id;
 
     std::string name;
     Maybe<std::string> image;
@@ -74,6 +93,13 @@ RPP_TYPE_OBJECT(
     __(name) __(image) __(detail)
     __(cat_count) __(tot_book_count) __(book_count),
     Cat
+)
+
+RPP_TYPE_OBJECT(
+    __(_id)
+    __(name) __(detail)
+    __(tot_book_count),
+    Subset<Cat>
 )
 
 struct Book {
@@ -101,6 +127,13 @@ RPP_TYPE_OBJECT(
     Book
 )
 
+RPP_TYPE_OBJECT(
+    __(_id)
+    __(name) __(detail) __(price) __(inventory)
+    __(sold_count),
+    Subset<Book>
+)
+
 struct Buy {
     std::string _id; // buy_id
     std::string buyer_user_id;
@@ -119,6 +152,13 @@ RPP_TYPE_OBJECT(
     __(address) __(feedback)
     __(date_create) __(date_accept) __(date_done),
     Buy
+)
+
+RPP_TYPE_OBJECT(
+    __(_id) __(buy_book_id)
+    __(address)
+    __(date_accept) __(date_done),
+    Subset<Buy>
 )
 
 }

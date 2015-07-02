@@ -26,10 +26,33 @@ using VisitorListJSON = rpp::TypeList<
     rpp::VisitorJSON<cgicc::FCgiCC<>>
 >;
 using VisitorListDB = rpp::TypeList<
-    rpp::VisitorJSON<cgicc::FCgiCC<>>,
     rpp::VisitorBSON<>,
     rpp::VisitorBSONView<>
 >;
+
+// standard ajax
+
+template <class Args>
+void ajaxArgs(cgicc::FCgiCC<> &cgi, Args &args) {
+    RPP_META_DYNAMIC(
+        "args", Args, VisitorListArgs
+    ) meta{args};
+
+    rpp::VisitorIStrTree<cgicc::FCgiCC<>> visitor{cgi};
+    meta.doVisit(visitor);
+}
+
+template <class Result>
+void ajaxReturn(cgicc::FCgiCC<> &cgi, Result &result) {
+    cgi << content_type_json;
+
+    RPP_META_DYNAMIC(
+        "result", Result, VisitorListJSON
+    ) meta{result};
+
+    rpp::VisitorJSON<cgicc::FCgiCC<>> visitor{cgi};
+    meta.doVisit(visitor);
+};
 
 // helper macro and functions
 
