@@ -5,41 +5,45 @@ namespace bookstore {
 BOOKSTORE_DB_CONN()
 
 struct Args {
-    //
+    std::string user_id;
+    // long begin;
 };
 
 RPP_TYPE_OBJECT(
-    // __(???),
-    ,
+    __(user_id),
     Args
+)
+
+struct Result {
+    std::vector<Subset<Book>> data;
+};
+
+RPP_TYPE_OBJECT(
+    __(data),
+    Result
 )
 
 void exec(cgicc::FCgiCC<> &cgi) {
     Args args;
     ajaxArgs(cgi, args);
 
-    // action
-
     // find
 
     using namespace bsoncxx::builder::stream;
 
-    // auto cursor = db_???.find(
-    //     document{}
-    //         << "_id" << ??? << finalize
-    // );
+    auto cursor = db_book.find(
+        document{}
+            << "owner_user_id" << args.user_id << finalize
+    );
 
     // get data
 
-    // ??? result;
-    int result{0};
+    Result result;
 
-    // RPP_META_DYNAMIC(
-    //     "result", ???, VisitorListDB
-    // ) result_meta{result};
-
-    // rpp::VisitorBSONView<> result_visitor{bsoncxx::types::b_document{*(cursor.begin())}};
-    // result_meta.doVisit(result_visitor);
+    for (const auto &item: cursor) {
+        result.data.push_back({});
+        dbGet(item, result.data.back());
+    }
 
     ajaxReturn(cgi, result);
 }

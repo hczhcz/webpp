@@ -42,13 +42,7 @@ void exec(cgicc::FCgiCC<> &cgi) {
 
     for (const auto &item: cursor) {
         result.data.push_back({});
-
-        RPP_META_DYNAMIC(
-            "item", Subset<Cat>, VisitorListDB
-        ) result_meta{result.data.back()};
-
-        rpp::VisitorBSONView<> result_visitor{bsoncxx::types::b_document{item}};
-        result_meta.doVisit(result_visitor);
+        dbGet(item, result.data.back());
     }
 
     ajaxReturn(cgi, result);

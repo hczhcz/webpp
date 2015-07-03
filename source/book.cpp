@@ -29,15 +29,7 @@ void exec(cgicc::FCgiCC<> &cgi) {
     // get data
 
     Book result;
-
-    RPP_META_DYNAMIC(
-        "result", Book, VisitorListDB
-    ) result_meta{result};
-
-    rpp::VisitorBSONView<> result_visitor{
-        bsoncxx::types::b_document{*(cursor.begin())}
-    };
-    result_meta.doVisit(result_visitor);
+    dbGet(*cursor.begin(), result);
 
     ajaxReturn(cgi, result);
 }
