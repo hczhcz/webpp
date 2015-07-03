@@ -79,6 +79,22 @@ void dbGet(const bsoncxx::document::view &view, T &value) {
 }
 
 template <class T>
+void dbGetOne(
+    mongocxx::collection &db,
+    const std::string &id,
+    T &value
+) {
+    using namespace bsoncxx::builder::stream;
+
+    auto cursor = db.find(
+        document{}
+            << "_id" << id << finalize
+    );
+
+    dbGet(*cursor.begin(), value);
+}
+
+template <class T>
 std::string dbInsert(mongocxx::collection &db, T &&value) {
     RPP_META_DYNAMIC(
         "data", T, VisitorListDB
@@ -92,11 +108,31 @@ std::string dbInsert(mongocxx::collection &db, T &&value) {
     return value._id;
 }
 
+template <class T>
+std::string dbReplace(mongocxx::collection &db, T &&value) {
+    RPP_META_DYNAMIC(
+        "data", T, VisitorListDB
+    ) meta{value};
+
+    rpp::VisitorBSON<> visitor{};
+    meta.doVisit(visitor);
+
+    using namespace bsoncxx::builder::stream;
+
+    db.replace_one(
+        document{}
+            << "_id" << value._id << finalize,
+        visitor.view()
+    );
+
+    return value._id;
+}
+
 // session
 
 template <class Session>
 void saveSession(mongocxx::collection &db, Session &&session) {
-    dbInsert(db, std::move(session));
+    dbReplace(db, std::move(session));
 }
 
 template <class Session>
@@ -125,9 +161,8 @@ bool getSession(
         auto cursor = db.find(
             document{}
                 << "_id" << id
-                << "key" << key
+                << "key" << key << finalize
                 // TODO: timeout
-                << finalize
         );
 
         auto iter = cursor.begin();
@@ -146,15 +181,19 @@ void makeSession(
     mongocxx::collection &db,
     Session &session
 ) {
-    if (getSession(cgi, db, session)) {
-        // ok
-    } else {
-        session = Session{
-            genOID(), randstr(),
-            nullptr, nullptr, false,
-            time(nullptr)
-        };
-    }
+    try {
+        if (getSession(cgi, db, session)) {
+            // ok
+            return;
+        }
+    } catch (...) {}
+
+    session = Session{
+        genOID(), randstr(),
+        nullptr, nullptr, nullptr, false,
+        time(nullptr)
+    };
+    dbInsert(db, session);
 }
 
 // standard ajax
@@ -170,7 +209,11 @@ void ajaxArgs(cgicc::FCgiCC<> &cgi, Args &args) {
 }
 
 template <class Session, class Result>
-void ajaxReturn(cgicc::FCgiCC<> &cgi, const Session &session, Result &result) {
+void ajaxReturn(
+    cgicc::FCgiCC<> &cgi,
+    const Session &session,
+    Result &result
+) {
     // header
     cgicc::HTTPContentHeader header{content_type_json};
     header.setCookie(cgicc::HTTPCookie{session_tag_id, session._id});

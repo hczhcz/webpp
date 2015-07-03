@@ -5,7 +5,8 @@ namespace bookstore {
 BOOKSTORE_DB_CONN()
 
 void exec(cgicc::FCgiCC<> &cgi) {
-    cgi << content_type_text;
+    cgicc::HTTPContentHeader header{content_type_text};
+    cgi << header;
 
     cgi << "delete...\r\n";
 
@@ -13,6 +14,7 @@ void exec(cgicc::FCgiCC<> &cgi) {
     db_book.delete_many({});
     db_user.delete_many({});
     db_buy.delete_many({});
+    db_session.delete_many({});
 
     cgi << "add users...\r\n";
 

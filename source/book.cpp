@@ -16,19 +16,8 @@ RPP_TYPE_OBJECT(
 void exec(cgicc::FCgiCC<> &cgi) {
     BOOKSTORE_EXEC_ENTER(session, args)
 
-    // find
-
-    using namespace bsoncxx::builder::stream;
-
-    auto cursor = db_book.find(
-        document{}
-            << "_id" << args.book_id << finalize
-    );
-
-    // get data
-
     Book result;
-    dbGet(*cursor.begin(), result);
+    dbGetOne(db_book, args.book_id, result);
 
     BOOKSTORE_EXEC_EXIT(result, session)
 }

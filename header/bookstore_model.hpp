@@ -23,15 +23,38 @@ struct Maybe: public std::unique_ptr<T> {
 
     Maybe(std::nullptr_t): std::unique_ptr<T>{} {}
 
-    template <class T1>
-    Maybe(T1 &&value): std::unique_ptr<T>{
-        new T{std::move(value)}
-    } {}
+    // template <class T1>
+    // Maybe(T1 &&value): std::unique_ptr<T>{
+    //     new T{std::move(value)}
+    // } {}
 
     template <class T1>
     Maybe(const T1 &value): std::unique_ptr<T>{
         new T{value}
     } {}
+
+    Maybe<T> &operator=(std::nullptr_t) {
+        std::unique_ptr<T>::operator=(nullptr);
+
+        return *this;
+    }
+
+    template <class T1>
+    Maybe<T> &operator=(const T1 &value) {
+        std::unique_ptr<T>::operator=(
+            std::unique_ptr<T>{new T{value}}
+        );
+
+        return *this;
+    }
+
+    T &force() {
+        if (std::unique_ptr<T>::get()) {
+            return *std::unique_ptr<T>::get();
+        } else {
+            throw std::exception{};
+        }
+    }
 };
 
 template <class T>
@@ -165,8 +188,9 @@ struct Session {
     std::string _id;
     std::string key;
 
+    Maybe<std::string> auth_salt;
     Maybe<std::string> auth_user_id;
-    Maybe<std::string> auth_salt; // TODO: currently not in use
+    Maybe<std::string> auth_name;
     bool auth_sudo; // TODO: currently not in use
 
     time_t date_create;
@@ -174,7 +198,7 @@ struct Session {
 
 RPP_TYPE_OBJECT(
     __(_id) __(key)
-    __(auth_user_id) __(auth_salt) __(auth_sudo)
+    __(auth_salt) __(auth_user_id) __(auth_name) __(auth_sudo)
     __(date_create),
     Session
 )
