@@ -19,6 +19,7 @@
 
 namespace bookstore {
 
+// helper macros
 
 #define BOOKSTORE_DB_CONN() \
     mongocxx::instance inst{}; \
@@ -62,9 +63,12 @@ void ajaxArgs(cgicc::FCgiCC<> &cgi, Args &args) {
     meta.doVisit(visitor);
 }
 
-template <class Result>
-void ajaxReturn(cgicc::FCgiCC<> &cgi, Result &result) {
-    cgi << content_type_json;
+template <class Session, class Result>
+void ajaxReturn(cgicc::FCgiCC<> &cgi, Session &session, Result &result) {
+    cgicc::HTTPContentHeader header{content_type_json};
+    header.setCookie(cgicc::HTTPCookie{session_tag_id, session._id});
+    header.setCookie(cgicc::HTTPCookie{session_tag_id, session.key});
+    cgi << header;
 
     RPP_META_DYNAMIC(
         "result", Result, VisitorListJSON
@@ -102,6 +106,58 @@ std::string dbInsert(mongocxx::collection &db, T &&value) {
     return value._id;
 }
 
+// session
+
+template <class Session = Session>
+Session makeSession(
+        cgicc::FCgiCC<> &cgi,
+        mongocxx::collection &db
+) {
+    std::string id;
+    std::string key;
+
+    for (const auto &item: cgi.getEnvironment().getCookieList()) {
+        std::string name = item.getName();
+        if (name == session_tag_id) {
+            id = item.getValue();
+        } else if (name == session_tag_key) {
+            key = item.getValue();
+        }
+    }
+
+    // find session in the database
+    if (id != "") {
+        using namespace bsoncxx::builder::stream;
+        Session session;
+
+        auto cursor = db.find(
+            document{}
+                << "_id" << key << finalize
+        );
+
+        if (cursor.begin() != cursor.end()) {
+            dbGet(*cursor.begin(), session);
+
+            // check key and time
+            if (session.key == key) {
+                if (
+                    difftime(
+                        time(nullptr), session.date_create
+                    ) <= 60 * 60 * 24
+                ) {
+                    return session;
+                }
+            }
+        }
+    }
+
+    // new session
+    return Session{
+        genOID(), randstr(),
+        nullptr, nullptr, false,
+        time(nullptr)
+    };
+}
 
 }
 

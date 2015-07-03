@@ -161,4 +161,22 @@ RPP_TYPE_OBJECT(
     Subset<Buy>
 )
 
+struct Session {
+    std::string _id;
+    std::string key;
+
+    Maybe<std::string> auth_user_id;
+    Maybe<std::string> auth_salt; // TODO: currently not in use
+    bool auth_sudo; // TODO: currently not in use
+
+    time_t date_create;
+};
+
+RPP_TYPE_OBJECT(
+    __(_id) __(key)
+    __(auth_user_id) __(auth_salt) __(auth_sudo)
+    __(date_create),
+    Session
+)
+
 }
