@@ -2,7 +2,6 @@
 #ifndef BOOKSTORE_HPP
 #define BOOKSTORE_HPP
 
-#include <bsoncxx/oid.hpp>
 #include <bsoncxx/builder/stream/document.hpp>
 #include <mongocxx/client.hpp>
 #include <mongocxx/instance.hpp>
@@ -15,9 +14,28 @@
 #include "reflection++/meta.hpp"
 
 #include "bookstore_model.hpp"
+#include "bookstore_hash.hpp"
 #include "bookstore_cgi.hpp"
 
 namespace bookstore {
+
+
+#define BOOKSTORE_DB_CONN() \
+    mongocxx::instance inst{}; \
+    mongocxx::client conn{}; \
+    auto db = conn["bookstore"]; \
+    auto db_cat = db["cat"]; \
+    auto db_book = db["book"]; \
+    auto db_user = db["user"]; \
+    auto db_buy = db["buy"]; \
+    auto db_session = db["session"];
+
+#define BOOKSTORE_MAIN(Exec, Err) \
+    int main() { \
+        using namespace bookstore; \
+        fcgicc_exec((Exec), (Err)); \
+        return 0; \
+    }
 
 // visitors
 
@@ -56,32 +74,34 @@ void ajaxReturn(cgicc::FCgiCC<> &cgi, Result &result) {
     meta.doVisit(visitor);
 };
 
-// helper macro and functions
+// standard database io
 
-#define BOOKSTORE_DB_CONN() \
-    mongocxx::instance inst{}; \
-    mongocxx::client conn{}; \
-    auto db = conn["bookstore"]; \
-    auto db_cat = db["cat"]; \
-    auto db_book = db["book"]; \
-    auto db_user = db["user"]; \
-    auto db_buy = db["buy"];
+template <class T>
+void dbGet(const bsoncxx::document::view &view, T &value) {
+    RPP_META_DYNAMIC(
+        "data", T, VisitorListDB
+    ) meta{value};
 
-#define BOOKSTORE_MAIN(Exec, Err) \
-    int main() { \
-        using namespace bookstore; \
-        fcgicc_exec((Exec), (Err)); \
-        return 0; \
-    }
-
-inline std::string genOID() {
-    return bsoncxx::oid{bsoncxx::oid::init_tag}.to_string();
+    rpp::VisitorBSONView<> visitor{
+        bsoncxx::types::b_document{view}
+    };
+    meta.doVisit(visitor);
 }
 
-// TODO: not implemented
-inline std::string passwordHash(const std::string user, const std::string pass) {
-    return user + pass; // TODO
+template <class T>
+std::string dbInsert(mongocxx::collection &db, T &&value) {
+    RPP_META_DYNAMIC(
+        "data", T, VisitorListDB
+    ) meta{value};
+
+    rpp::VisitorBSON<> visitor{};
+    meta.doVisit(visitor);
+
+    db.insert_one(visitor.view());
+
+    return value._id;
 }
+
 
 }
 
