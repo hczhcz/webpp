@@ -5,17 +5,31 @@ namespace bookstore {
 BOOKSTORE_DB_CONN()
 
 struct Args {
-    //
 };
 
 RPP_TYPE_OBJECT(
-    // __(???),
-    ,
+    /* nothing */,
     Args
 )
 
+struct Result {
+    std::string auth_salt;
+};
+
+RPP_TYPE_OBJECT(
+    __(auth_salt),
+    Result
+)
+
 void exec(cgicc::FCgiCC<> &cgi) {
-    static_cast<void>(cgi); // TODO
+    BOOKSTORE_EXEC_ENTER(session, args)
+
+    std::string salt{randstr()};
+    session.auth_salt = salt;
+
+    Result result{salt};
+
+    BOOKSTORE_EXEC_EXIT(result, session)
 }
 
 }
