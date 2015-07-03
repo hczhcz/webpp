@@ -24,8 +24,7 @@ RPP_TYPE_OBJECT(
 )
 
 void exec(cgicc::FCgiCC<> &cgi) {
-    Args args;
-    ajaxArgs(cgi, args);
+    BOOKSTORE_EXEC_ENTER(session, args)
 
     // find
 
@@ -45,7 +44,7 @@ void exec(cgicc::FCgiCC<> &cgi) {
         dbGet(item, result.data.back());
     }
 
-    ajaxReturn(cgi, makeSession(cgi, db_session), result);
+    BOOKSTORE_EXEC_EXIT(result, session)
 }
 
 }

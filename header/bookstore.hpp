@@ -24,6 +24,7 @@ namespace bookstore {
 #define BOOKSTORE_DB_CONN() \
     mongocxx::instance inst{}; \
     mongocxx::client conn{}; \
+    \
     auto db = conn["bookstore"]; \
     auto db_cat = db["cat"]; \
     auto db_book = db["book"]; \
@@ -35,8 +36,20 @@ namespace bookstore {
     int main() { \
         using namespace bookstore; \
         fcgicc_exec((Exec), (Err)); \
+        \
         return 0; \
     }
+
+#define BOOKSTORE_EXEC_ENTER(SObj, AObj) \
+    Session SObj; \
+    makeSession(cgi, db_session, SObj); \
+    Args AObj; \
+    ajaxArgs(cgi, AObj);
+
+#define BOOKSTORE_EXEC_EXIT(RObj, SObj) \
+    ajaxReturn(cgi, SObj, RObj); \
+    saveSession(db_session, SObj); \
+    return;
 
 // visitors
 
@@ -82,14 +95,15 @@ std::string dbInsert(mongocxx::collection &db, T &&value) {
 // session
 
 template <class Session>
-void saveSession(mongocxx::collection &db, Session &session) {
-    dbInsert(db, session);
+void saveSession(mongocxx::collection &db, Session &&session) {
+    dbInsert(db, std::move(session));
 }
 
-template <class Session = Session>
-Session getSession(
+template <class Session>
+bool getSession(
     cgicc::FCgiCC<> &cgi,
-    mongocxx::collection &db
+    mongocxx::collection &db,
+    Session &session
 ) {
     // parse cookies
     std::string id;
@@ -107,50 +121,40 @@ Session getSession(
     // find session in the database
     if (id != "") {
         using namespace bsoncxx::builder::stream;
-        Session session;
 
         auto cursor = db.find(
             document{}
-                << "_id" << id << finalize
+                << "_id" << id
+                << "key" << key
+                // TODO: timeout
+                << finalize
         );
 
-        if (cursor.begin() != cursor.end()) {
-            dbGet(*cursor.begin(), session);
-
-            // check key and time
-            if (session.key == key) {
-                if (
-                    difftime(
-                        time(nullptr), session.date_create
-                    ) <= 60 * 60 * 24
-                ) {
-                    return session;
-                }
-            }
+        auto iter = cursor.begin();
+        if (iter != cursor.end()) {
+            dbGet(*iter, session);
+            return true;
         }
     }
 
-    // new session
-    return Session{
-        genOID(), randstr(),
-        nullptr, nullptr, false,
-        time(nullptr)
-    };
+    return false;
 }
 
-template <class Session = Session>
-Session makeSession(
+template <class Session>
+void makeSession(
     cgicc::FCgiCC<> &cgi,
     mongocxx::collection &db,
-    bool save = true
+    Session &session
 ) {
-    Session &&session{getSession<Session>(cgi, db)};
-
-    if (save) {
-        saveSession(db, session);
+    if (getSession(cgi, db, session)) {
+        // ok
+    } else {
+        session = Session{
+            genOID(), randstr(),
+            nullptr, nullptr, false,
+            time(nullptr)
+        };
     }
-
-    return std::move(session);
 }
 
 // standard ajax
