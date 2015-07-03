@@ -45,7 +45,7 @@ void exec(cgicc::FCgiCC<> &cgi) {
         dbGet(item, result.data.back());
     }
 
-    ajaxReturn(cgi, result);
+    ajaxReturn(cgi, makeSession(cgi, db_session), result);
 }
 
 }

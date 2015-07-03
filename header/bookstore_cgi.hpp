@@ -8,10 +8,10 @@
 namespace bookstore {
 
 const char content_type_text[]{
-    "Content-Type: text/plain; charset=utf-8;\r\n\r\n"
+    "text/plain; charset=utf-8"
 };
 const char content_type_json[]{
-    "Content-Type: application/json; charset=utf-8;\r\n\r\n"
+    "application/json; charset=utf-8"
 };
 
 const char session_tag_id[]{"BOOKSTORE_SESSION_ID"};

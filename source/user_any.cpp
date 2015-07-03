@@ -31,7 +31,7 @@ void exec(cgicc::FCgiCC<> &cgi) {
     Subset<User> result;
     dbGet(*cursor.begin(), result);
 
-    ajaxReturn(cgi, result);
+    ajaxReturn(cgi, makeSession(cgi, db_session), result);
 }
 
 }

@@ -41,7 +41,7 @@ void exec(cgicc::FCgiCC<> &cgi) {
     // rpp::VisitorBSONView<> result_visitor{bsoncxx::types::b_document{*(cursor.begin())}};
     // result_meta.doVisit(result_visitor);
 
-    ajaxReturn(cgi, result);
+    ajaxReturn(cgi, makeSession(cgi, db_session), result);
 }
 
 }

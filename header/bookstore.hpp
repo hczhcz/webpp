@@ -51,33 +51,6 @@ using VisitorListDB = rpp::TypeList<
     rpp::VisitorBSONView<>
 >;
 
-// standard ajax
-
-template <class Args>
-void ajaxArgs(cgicc::FCgiCC<> &cgi, Args &args) {
-    RPP_META_DYNAMIC(
-        "args", Args, VisitorListArgs
-    ) meta{args};
-
-    rpp::VisitorIStrTree<cgicc::FCgiCC<>> visitor{cgi};
-    meta.doVisit(visitor);
-}
-
-template <class Session, class Result>
-void ajaxReturn(cgicc::FCgiCC<> &cgi, Session &session, Result &result) {
-    cgicc::HTTPContentHeader header{content_type_json};
-    header.setCookie(cgicc::HTTPCookie{session_tag_id, session._id});
-    header.setCookie(cgicc::HTTPCookie{session_tag_id, session.key});
-    cgi << header;
-
-    RPP_META_DYNAMIC(
-        "result", Result, VisitorListJSON
-    ) meta{result};
-
-    rpp::VisitorJSON<cgicc::FCgiCC<>> visitor{cgi};
-    meta.doVisit(visitor);
-};
-
 // standard database io
 
 template <class T>
@@ -108,11 +81,17 @@ std::string dbInsert(mongocxx::collection &db, T &&value) {
 
 // session
 
+template <class Session>
+void saveSession(mongocxx::collection &db, Session &session) {
+    dbInsert(db, session);
+}
+
 template <class Session = Session>
-Session makeSession(
-        cgicc::FCgiCC<> &cgi,
-        mongocxx::collection &db
+Session getSession(
+    cgicc::FCgiCC<> &cgi,
+    mongocxx::collection &db
 ) {
+    // parse cookies
     std::string id;
     std::string key;
 
@@ -132,7 +111,7 @@ Session makeSession(
 
         auto cursor = db.find(
             document{}
-                << "_id" << key << finalize
+                << "_id" << id << finalize
         );
 
         if (cursor.begin() != cursor.end()) {
@@ -158,6 +137,50 @@ Session makeSession(
         time(nullptr)
     };
 }
+
+template <class Session = Session>
+Session makeSession(
+    cgicc::FCgiCC<> &cgi,
+    mongocxx::collection &db,
+    bool save = true
+) {
+    Session &&session{getSession<Session>(cgi, db)};
+
+    if (save) {
+        saveSession(db, session);
+    }
+
+    return std::move(session);
+}
+
+// standard ajax
+
+template <class Args>
+void ajaxArgs(cgicc::FCgiCC<> &cgi, Args &args) {
+    RPP_META_DYNAMIC(
+        "args", Args, VisitorListArgs
+    ) meta{args};
+
+    rpp::VisitorIStrTree<cgicc::FCgiCC<>> visitor{cgi};
+    meta.doVisit(visitor);
+}
+
+template <class Session, class Result>
+void ajaxReturn(cgicc::FCgiCC<> &cgi, const Session &session, Result &result) {
+    // header
+    cgicc::HTTPContentHeader header{content_type_json};
+    header.setCookie(cgicc::HTTPCookie{session_tag_id, session._id});
+    header.setCookie(cgicc::HTTPCookie{session_tag_key, session.key});
+    cgi << header;
+
+    // content
+    RPP_META_DYNAMIC(
+        "result", Result, VisitorListJSON
+    ) meta{result};
+
+    rpp::VisitorJSON<cgicc::FCgiCC<>> visitor{cgi};
+    meta.doVisit(visitor);
+};
 
 }
 
