@@ -30,7 +30,7 @@ void exec(cgicc::FCgiCC<> &cgi) {
 
     if (session.auth_user_id) {
         User user;
-        dbGetOne(db_user, session.auth_user_id.force(), user);
+        dbGetOne(db_user, user, session.auth_user_id.force());
 
         result = Result{
             session.auth_user_id.force(),

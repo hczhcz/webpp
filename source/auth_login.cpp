@@ -35,18 +35,13 @@ void exec(cgicc::FCgiCC<> &cgi) {
 
     using namespace bsoncxx::builder::stream;
 
-    auto cursor = db_user.find(
-        document{}
-            << "name" << args.name << finalize
-    );
-
-    auto iter = cursor.begin();
-    if (iter != cursor.end()) {
-        // user exists
-        User user;
-        dbGet(*iter, user);
-
-        if (hashstr(user.password + salt) == args.password) {
+    User user;
+    if (dbGetOneF(
+        db_user, user,
+        document{} << "name" << args.name << finalize,
+        false
+    )) {
+        if (hashStr(user.password + salt) == args.password) {
             // login ok
 
             session.auth_salt = nullptr;

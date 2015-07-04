@@ -7,12 +7,13 @@
 
 namespace webutil {
 
-inline std::string randStr() {
+template <class Output = std::string>
+Output randStr() {
     unsigned char buf[64];
 
     RAND_bytes(buf, 64);
 
-    std::string result;
+    Output result;
     for (long i = 0; i < 64; ++i) {
         result += "0123456789abcdef"[(buf[i] >> 4) & 0xf];
         result += "0123456789abcdef"[buf[i] & 0xf];
@@ -21,7 +22,8 @@ inline std::string randStr() {
     return result;
 }
 
-inline std::string hashStr(const std::string &value) {
+template <class Input, class Output = std::string>
+Output hashStr(const Input &value) {
     unsigned char buf[SHA256_DIGEST_LENGTH];
 
     SHA256_CTX sha256;
@@ -29,7 +31,7 @@ inline std::string hashStr(const std::string &value) {
     SHA256_Update(&sha256, value.data(), value.size());
     SHA256_Final(buf, &sha256);
 
-    std::string result;
+    Output result;
     for (long i = 0; i < SHA256_DIGEST_LENGTH; ++i) {
         result += "0123456789abcdef"[(buf[i] >> 4) & 0xf];
         result += "0123456789abcdef"[buf[i] & 0xf];

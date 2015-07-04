@@ -17,7 +17,7 @@ void exec(cgicc::FCgiCC<> &cgi) {
     BOOKSTORE_EXEC_ENTER(session, args)
 
     Book result;
-    dbGetOne(db_book, args.book_id, result);
+    dbGetOne(db_book, result, args.book_id);
 
     BOOKSTORE_EXEC_EXIT(result, session)
 }

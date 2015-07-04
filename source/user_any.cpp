@@ -17,7 +17,7 @@ void exec(cgicc::FCgiCC<> &cgi) {
     BOOKSTORE_EXEC_ENTER(session, args)
 
     Subset<User> result;
-    dbGetOne(db_user, args.user_id, result);
+    dbGetOne(db_user, result, args.user_id);
 
     BOOKSTORE_EXEC_EXIT(result, session)
 }

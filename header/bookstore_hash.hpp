@@ -9,6 +9,13 @@ namespace bookstore {
 using webutil::randStr;
 using webutil::hashStr;
 
+inline std::string saltedHash(
+    const std::string &value,
+    const std::string &salt
+) {
+    return hashStr(value + salt);
+}
+
 inline std::string passwordHash(
     const std::string &name,
     const std::string &password

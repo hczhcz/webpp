@@ -170,7 +170,7 @@ public:
     }
 
     const std::string &operator[](const std::string &key) {
-        static std::string result;
+        thread_local static std::string result;
 
         if (!this->getElement(key)->isEmpty()) {
             result = this->getElement(key)->getStrippedValue();
@@ -182,7 +182,7 @@ public:
     }
 
     const std::string &at(const std::string &key) {
-        static std::string result;
+        thread_local static std::string result;
 
         if (!this->getElement(key)->isEmpty()) {
             result = this->getElement(key)->getStrippedValue();

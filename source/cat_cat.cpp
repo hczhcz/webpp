@@ -41,7 +41,7 @@ void exec(cgicc::FCgiCC<> &cgi) {
 
     for (const auto &item: cursor) {
         result.data.push_back({});
-        dbGet(item, result.data.back());
+        bsonGet(item, result.data.back());
     }
 
     BOOKSTORE_EXEC_EXIT(result, session)

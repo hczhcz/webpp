@@ -6,7 +6,10 @@
 
 namespace bookstore {
 
-RPP_ACCESSOR_INFER_INIT()
+#ifndef BOOKSTORE_RPP_READY
+    #define BOOKSTORE_RPP_READY
+    RPP_ACCESSOR_INFER_INIT()
+#endif
 
 // template <class T, size_t size>
 // RPP_TYPE_DYNAMIC_GENERIC(T, T [size])
@@ -23,10 +26,10 @@ struct Maybe: public std::unique_ptr<T> {
 
     Maybe(std::nullptr_t): std::unique_ptr<T>{} {}
 
-    // template <class T1>
-    // Maybe(T1 &&value): std::unique_ptr<T>{
-    //     new T{std::move(value)}
-    // } {}
+    template <class T1>
+    Maybe(T1 &&value): std::unique_ptr<T>{
+        new T{std::move(value)}
+    } {}
 
     template <class T1>
     Maybe(const T1 &value): std::unique_ptr<T>{
