@@ -35,7 +35,7 @@ namespace bookstore {
 #define BOOKSTORE_MAIN(Exec, Err) \
     int main() { \
         using namespace bookstore; \
-        fcgicc_exec((Exec), (Err)); \
+        webutil::fcgiccExec((Exec), (Err)); \
         \
         return 0; \
     }
@@ -79,10 +79,11 @@ void dbGet(const bsoncxx::document::view &view, T &value) {
 }
 
 template <class T>
-void dbGetOne(
+bool dbGetOne(
     mongocxx::collection &db,
     const std::string &id,
-    T &value
+    T &value,
+    bool force = true
 ) {
     using namespace bsoncxx::builder::stream;
 
@@ -91,7 +92,17 @@ void dbGetOne(
             << "_id" << id << finalize
     );
 
-    dbGet(*cursor.begin(), value);
+    auto iter = cursor.begin();
+    if (iter != cursor.end()) {
+        dbGet(*cursor.begin(), value);
+        return true;
+    } else {
+        if (force) {
+            throw std::exception{};
+        } else {
+            return false;
+        }
+    }
 }
 
 template <class T>
@@ -189,7 +200,7 @@ void makeSession(
     } catch (...) {}
 
     session = Session{
-        genOID(), randstr(),
+        genOID(), randStr(),
         nullptr, nullptr, nullptr, false,
         time(nullptr)
     };

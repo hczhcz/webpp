@@ -24,7 +24,7 @@ RPP_TYPE_OBJECT(
 void exec(cgicc::FCgiCC<> &cgi) {
     BOOKSTORE_EXEC_ENTER(session, args)
 
-    std::string salt{randstr()};
+    std::string salt{randStr()};
     session.auth_salt = salt;
 
     Result result{salt};

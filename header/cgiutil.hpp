@@ -195,9 +195,11 @@ public:
 
 }
 
+namespace webutil {
+
 // execute a FastCGI (+CGICC) event loop
 template <class Env, class In, class Out, class Err, class E>
-void fcgicc_exec(
+void fcgiccExec(
     void (&func)(cgicc::FCgiCC<Env, In, Out, Err> &),
     void (&except)(const E &)
 ) {
@@ -217,4 +219,6 @@ void fcgicc_exec(
             except(e);
         }
     }
+}
+
 }
