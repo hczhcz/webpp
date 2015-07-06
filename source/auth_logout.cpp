@@ -30,7 +30,7 @@ void exec(cgicc::FCgiCC<> &cgi) {
     Result result;
 
     if (user_id == args.login_user_id) {
-        // check ok
+        // logout ok
 
         session.auth_salt = nullptr;
         session.auth_user_id = nullptr;
@@ -39,6 +39,8 @@ void exec(cgicc::FCgiCC<> &cgi) {
 
         result = Result{true};
     } else {
+        // wrong id
+
         result = Result{false};
     }
 

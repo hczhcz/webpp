@@ -16,6 +16,8 @@ RPP_TYPE_OBJECT(
 void exec(cgicc::FCgiCC<> &cgi) {
     BOOKSTORE_EXEC_ENTER(session, args)
 
+    // get data
+
     Cat result;
     dbGetOne(db_cat, result, args.cat_id);
 

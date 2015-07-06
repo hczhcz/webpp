@@ -5,17 +5,24 @@ namespace bookstore {
 BOOKSTORE_DB_CONN()
 
 struct Args {
-    //
 };
 
 RPP_TYPE_OBJECT(
-    // __(???),
-    ,
+    /* nothing */,
     Args
 )
 
 void exec(cgicc::FCgiCC<> &cgi) {
-    static_cast<void>(cgi); // TODO
+    BOOKSTORE_EXEC_ENTER(session, args)
+
+    std::string user_id{session.auth_user_id.force()};
+
+    // get data
+
+    User result;
+    dbGetOne(db_user, result, user_id);
+
+    BOOKSTORE_EXEC_EXIT(result, session)
 }
 
 }

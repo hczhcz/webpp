@@ -66,6 +66,9 @@ RPP_TYPE_DYNAMIC_GENERIC(T, Maybe<T>)
 template <class T>
 struct Subset: public T {};
 
+template <class T>
+struct Subset2: public T {};
+
 struct User {
     std::string _id; // user_id
 
@@ -99,6 +102,13 @@ RPP_TYPE_OBJECT(
     __(name) __(image) __(detail) __(location)
     __(book_count) __(sold_count),
     Subset<User>
+)
+
+RPP_TYPE_OBJECT(
+    __(_id)
+    __(name)
+    __(book_count) __(sold_count),
+    Subset2<User>
 )
 
 struct Cat {
@@ -155,9 +165,16 @@ RPP_TYPE_OBJECT(
 
 RPP_TYPE_OBJECT(
     __(_id)
-    __(name) __(detail) __(price) __(inventory)
+    __(name)
     __(sold_count),
     Subset<Book>
+)
+
+RPP_TYPE_OBJECT(
+    __(_id)
+    __(name) __(detail) __(price) __(inventory)
+    __(sold_count),
+    Subset2<Book>
 )
 
 struct Buy {
@@ -185,6 +202,12 @@ RPP_TYPE_OBJECT(
     __(address)
     __(date_accept) __(date_done),
     Subset<Buy>
+)
+
+RPP_TYPE_OBJECT(
+    __(feedback)
+    __(date_done),
+    Subset2<Buy>
 )
 
 struct Session {

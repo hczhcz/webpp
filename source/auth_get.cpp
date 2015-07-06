@@ -26,6 +26,8 @@ RPP_TYPE_OBJECT(
 void exec(cgicc::FCgiCC<> &cgi) {
     BOOKSTORE_EXEC_ENTER(session, args)
 
+    // get data
+
     Result result;
 
     if (session.auth_user_id) {

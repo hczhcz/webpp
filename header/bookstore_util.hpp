@@ -3,6 +3,7 @@
 #include <bsoncxx/builder/stream/document.hpp>
 #include <mongocxx/client.hpp>
 #include <mongocxx/instance.hpp>
+#include <mongocxx/options/find.hpp>
 
 #include "reflection++/visitor/strtree.hpp"
 #include "reflection++/visitor/json.hpp"
@@ -184,7 +185,11 @@ bool getSession(
         auto cursor = db.find(
             document{}
                 << "_id" << id
-                << "key" << key << finalize
+                << "key" << key
+                << "$lt" << open_document
+                    << "date_create" << (
+                        time(nullptr) + 3600 * 24
+                    ) << close_document << finalize
                 // TODO: timeout
         );
 
