@@ -2,7 +2,7 @@ CC = clang++
 
 FLAGS = -Wall -Wextra -pedantic -ferror-limit=1 -std=c++11
 
-CFLAGS = -I/media/hcz/B/code/projects/reflection++ \
+CFLAGS = -I. \
 	`pkg-config --cflags openssl` \
 	`pkg-config --cflags cgicc` \
 	`pkg-config --cflags libmongocxx`
