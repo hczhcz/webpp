@@ -10,7 +10,7 @@ struct Args {
 };
 
 RPP_TYPE_OBJECT(
-    __(cat_id),
+    __(book_id),
     Args
 )
 
