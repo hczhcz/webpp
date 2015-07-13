@@ -1,25 +1,26 @@
-#include "../header/bookstore.hpp"
+#include "bookstore_headers.hpp"
 
-namespace bookstore {
+namespace wpp {
 
 BOOKSTORE_DB_CONN()
 
 struct Args {
-    std::string book_id;
 };
 
 RPP_TYPE_OBJECT(
-    __(book_id),
+    /* nothing */,
     Args
 )
 
 void exec(cgicc::FCgiCC<> &cgi) {
     BOOKSTORE_EXEC_ENTER(session, args)
 
+    std::string user_id{session.auth_user_id.force()};
+
     // get data
 
-    Book result;
-    dbGetOne(db_book, result, args.book_id);
+    User result;
+    dbGetOne(db_user, result, user_id);
 
     BOOKSTORE_EXEC_EXIT(result, session)
 }

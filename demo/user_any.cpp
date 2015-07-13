@@ -1,15 +1,15 @@
-#include "../header/bookstore.hpp"
+#include "bookstore_headers.hpp"
 
-namespace bookstore {
+namespace wpp {
 
 BOOKSTORE_DB_CONN()
 
 struct Args {
-    std::string cat_id;
+    std::string user_id;
 };
 
 RPP_TYPE_OBJECT(
-    __(cat_id),
+    __(user_id),
     Args
 )
 
@@ -18,8 +18,8 @@ void exec(cgicc::FCgiCC<> &cgi) {
 
     // get data
 
-    Cat result;
-    dbGetOne(db_cat, result, args.cat_id);
+    Subset<User> result;
+    dbGetOne(db_user, result, args.user_id);
 
     BOOKSTORE_EXEC_EXIT(result, session)
 }

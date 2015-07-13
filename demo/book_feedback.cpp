@@ -1,21 +1,21 @@
-#include "../header/bookstore.hpp"
+#include "bookstore_headers.hpp"
 
-namespace bookstore {
+namespace wpp {
 
 BOOKSTORE_DB_CONN()
 
 struct Args {
-    std::string user_id;
+    std::string book_id;
     // long begin;
 };
 
 RPP_TYPE_OBJECT(
-    __(user_id),
+    __(book_id),
     Args
 )
 
 struct Result {
-    std::vector<Subset<Book>> data;
+    std::vector<Subset2<Buy>> data;
 };
 
 RPP_TYPE_OBJECT(
@@ -30,9 +30,9 @@ void exec(cgicc::FCgiCC<> &cgi) {
 
     using namespace bsoncxx::builder::stream;
 
-    auto cursor = db_book.find(
+    auto cursor = db_buy.find(
         document{}
-            << "owner_user_id" << args.user_id << finalize
+            << "buy_book_id" << args.book_id << finalize
     );
 
     // get data

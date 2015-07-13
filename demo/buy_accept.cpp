@@ -1,17 +1,15 @@
-#include "../header/bookstore.hpp"
+#include "bookstore_headers.hpp"
 
-namespace bookstore {
+namespace wpp {
 
 BOOKSTORE_DB_CONN()
 
 struct Args {
-    std::string book_id;
-    std::string address;
+    std::string buy_id;
 };
 
 RPP_TYPE_OBJECT(
-    __(book_id)
-    __(address),
+    __(buy_id),
     Args
 )
 

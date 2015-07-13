@@ -1,21 +1,21 @@
-#include "../header/bookstore.hpp"
+#include "bookstore_headers.hpp"
 
-namespace bookstore {
+namespace wpp {
 
 BOOKSTORE_DB_CONN()
 
 struct Args {
-    std::string cat_id;
+    std::string mode;
     // long begin;
 };
 
 RPP_TYPE_OBJECT(
-    __(cat_id),
+    __(mode),
     Args
 )
 
 struct Result {
-    std::vector<Subset<Book>> data;
+    std::vector<Subset2<User>> data;
 };
 
 RPP_TYPE_OBJECT(
@@ -30,10 +30,17 @@ void exec(cgicc::FCgiCC<> &cgi) {
 
     using namespace bsoncxx::builder::stream;
 
-    auto cursor = db_book.find(
-        document{}
-            << "parent_cat_id" << args.cat_id << finalize
+    mongocxx::options::find opts;
+    opts.sort(
+        args.mode == "new" ?
+            document{} << "date_create" << -1 << finalize
+        : args.mode == "book" ?
+            document{} << "book_count" << -1 << finalize
+        : // args.mode == "sold" ?
+            document{} << "sold_count" << -1 << finalize
     );
+
+    auto cursor = db_user.find({}, opts);
 
     // get data
 
