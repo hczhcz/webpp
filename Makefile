@@ -12,19 +12,19 @@ LFLAGS = -lfcgi -lfcgi++ \
 	`pkg-config --libs cgicc` \
 	`pkg-config --libs libmongocxx`
 
-P_HPP = header/bookstore.hpp
+P_HPP = demo/bookstore_headers.hpp
 
-ALL_HPP = $(wildcard header/*.hpp)
-ALL_CPP = $(wildcard source/*.cpp)
+ALL_HPP = $(wildcard */*.hpp)
+ALL_CPP = $(wildcard demo/*.cpp)
 ALL_EXIST_FCGI = $(wildcard *.fcgi)
-ALL_TARGET = $(patsubst source/%.cpp, %.fcgi, $(ALL_CPP))
+ALL_TARGET = $(patsubst demo/%.cpp, %.fcgi, $(ALL_CPP))
 
 default: compile
 
 $(P_HPP).pch: $(ALL_HPP)
 	$(CC) -x c++-header $(FLAGS) $(CFLAGS) $(P_HPP) -o $@
 
-%.fcgi: source/%.cpp $(P_HPP).pch
+%.fcgi: demo/%.cpp $(P_HPP).pch
 	$(CC) -include $(P_HPP) $(FLAGS) $(CFLAGS) $(LFLAGS) $< -o $@
 
 compile: $(ALL_TARGET)
