@@ -1,15 +1,47 @@
 #pragma once
 
 #include <memory>
+#include <vector>
 
 #include "reflection++/accessor_infer.hpp"
 
-namespace bookstore {
+namespace wpp {
 
-#ifndef BOOKSTORE_RPP_READY
-    #define BOOKSTORE_RPP_READY
-    RPP_ACCESSOR_INFER_INIT()
-#endif
+// helper macros
+
+#define BOOKSTORE_DB_CONN() \
+    mongocxx::instance inst{}; \
+    mongocxx::client conn{}; \
+    \
+    auto db = conn["bookstore"]; \
+    auto db_cat = db["cat"]; \
+    auto db_book = db["book"]; \
+    auto db_user = db["user"]; \
+    auto db_buy = db["buy"]; \
+    auto db_session = db["session"];
+
+#define BOOKSTORE_MAIN(Exec, Err) \
+    int main() { \
+        using namespace wpp; \
+        fcgiccExec((Exec), (Err)); \
+        \
+        return 0; \
+    }
+
+#define BOOKSTORE_EXEC_ENTER(SObj, AObj) \
+    Session (SObj); \
+    makeSession(cgi, db_session, (SObj)); \
+    Args (AObj); \
+    ajaxArgs(cgi, (AObj));
+
+#define BOOKSTORE_EXEC_EXIT(RObj, SObj) \
+    ajaxReturn(cgi, (SObj), (RObj)); \
+    saveSession(db_session, (SObj)); \
+    return;
+
+// rpp setup
+
+RPP_ACCESSOR_INFER_INIT()
 
 // template <class T, size_t size>
 // RPP_TYPE_DYNAMIC_GENERIC(T, T [size])

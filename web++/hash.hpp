@@ -4,10 +4,7 @@
 
 #include "hashutil.hpp"
 
-namespace bookstore {
-
-using webutil::randStr;
-using webutil::hashStr;
+namespace wpp {
 
 inline std::string saltedHash(
     const std::string &value,

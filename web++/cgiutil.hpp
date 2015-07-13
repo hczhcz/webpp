@@ -195,7 +195,7 @@ public:
 
 }
 
-namespace webutil {
+namespace wpp {
 
 // execute a FastCGI (+CGICC) event loop
 template <class Env, class In, class Out, class Err, class E>

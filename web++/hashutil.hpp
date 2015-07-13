@@ -5,7 +5,7 @@
 #include <openssl/rand.h>
 #include <openssl/sha.h>
 
-namespace webutil {
+namespace wpp {
 
 template <class Output = std::string>
 Output randStr() {

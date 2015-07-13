@@ -5,7 +5,7 @@
 
 #include "cgiutil.hpp"
 
-namespace bookstore {
+namespace wpp {
 
 const char content_type_text[]{
     "text/plain; charset=utf-8"
@@ -14,8 +14,8 @@ const char content_type_json[]{
     "application/json; charset=utf-8"
 };
 
-const char session_tag_id[]{"BOOKSTORE_SESSION_ID"};
-const char session_tag_key[]{"BOOKSTORE_SESSION_KEY"};
+const char session_tag_id[]{"WPP_SESSION_ID"};
+const char session_tag_key[]{"WPP_SESSION_KEY"};
 
 inline void ignoreErr(const std::exception &) {
     // ignore
