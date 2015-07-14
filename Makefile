@@ -12,29 +12,31 @@ LFLAGS = -lfcgi -lfcgi++ \
 	`pkg-config --libs cgicc` \
 	`pkg-config --libs libmongocxx`
 
-P_HPP = demo/bookstore_headers.hpp
+HPP_COMMON = \
+	$(wildcard reflection++/*.hpp) \
+	$(wildcard reflection++/visitor/*.hpp) \
+	$(wildcard web++/*.hpp)
 
-ALL_HPP = $(wildcard */*.hpp)
-ALL_CPP = $(wildcard demo/*.cpp)
-ALL_EXIST_FCGI = $(wildcard *.fcgi)
-ALL_TARGET = $(patsubst demo/%.cpp, %.fcgi, $(ALL_CPP))
+HPP_DEMO = $(wildcard demo/*.hpp)
+CPP_DEMO = $(wildcard demo/*.cpp)
+HPP_PCH = demo/bookstore_headers.hpp
+FCGI_EXIST = $(wildcard demo/fcgi-bin/*.fcgi)
+FCGI_DEMO = $(patsubst demo/%.cpp, demo/fcgi-bin/%.fcgi, $(CPP_DEMO))
 
-default: compile
+default:
+	echo "make demo_pch\nmake demo\nmake clean"
 
-$(P_HPP).pch: $(ALL_HPP)
-	$(CC) -x c++-header $(FLAGS) $(CFLAGS) $(P_HPP) -o $@
+$(HPP_PCH).pch: $(HPP_COMMON) $(HPP_DEMO)
+	$(CC) -x c++-header $(FLAGS) $(CFLAGS) $(HPP_PCH) -o $@
 
-%.fcgi: demo/%.cpp $(P_HPP).pch
-	$(CC) -include $(P_HPP) $(FLAGS) $(CFLAGS) $(LFLAGS) $< -o $@
+demo/fcgi-bin/%.fcgi: demo/%.cpp $(HPP_PCH).pch
+	$(CC) -include $(HPP_PCH) $(FLAGS) $(CFLAGS) $(LFLAGS) $< -o $@
 
-compile: $(ALL_TARGET)
+demo_pch: $(HPP_PCH).pch
 
-restart:
+demo: demo_pch $(FCGI_DEMO)
 	sudo service apache2 restart
 
-run: compile restart
-
 clean:
-	touch rm_placeholder
-	rm rm_placeholder $(ALL_EXIST_FCGI)
-	rm $(P_HPP).pch
+	touch rm_placeholder.out
+	rm rm_placeholder.out $(FCGI_EXIST) $(HPP_PCH).pch
