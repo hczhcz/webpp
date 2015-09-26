@@ -44,7 +44,7 @@ void bsonGet(const bsoncxx::document::view &view, T &value) {
 }
 
 template <class T, class Filter>
-bool dbGetOneF(
+bool dbGetOneFiltered(
     mongocxx::collection &db,
     T &value,
     const Filter &filter,
@@ -74,11 +74,30 @@ bool dbGetOne(
 ) {
     using namespace bsoncxx::builder::stream;
 
-    return dbGetOneF(
+    return dbGetOneFiltered(
         db,
         value,
         document{}
             << "_id" << id << finalize,
+        force
+    );
+}
+
+template <class T>
+bool dbGetOne(
+    mongocxx::collection &db,
+    T &value,
+    const std::string &idKey,
+    const std::string &id,
+    bool force = true
+) {
+    using namespace bsoncxx::builder::stream;
+
+    return dbGetOneFiltered(
+        db,
+        value,
+        document{}
+            << idKey << id << finalize,
         force
     );
 }
@@ -179,11 +198,9 @@ void makeSession(
         }
     } catch (...) {}
 
-    session = Session{
-        genOID(), randStr(),
-        nullptr, nullptr, nullptr, false,
-        time(nullptr)
-    };
+    session.init(
+        genOID(), randStr()
+    );
     dbInsert(db, session);
 }
 
