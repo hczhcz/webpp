@@ -167,18 +167,13 @@ bool getSession(
         auto cursor = db.find(
             document{}
                 << "_id" << id
-                << "key" << key
-                << "$lt" << open_document
-                    << "date_create" << (
-                        time(nullptr) + 3600 * 24
-                    ) << close_document << finalize
-                // TODO: timeout
+                << "key" << key << finalize
         );
 
         auto iter = cursor.begin();
         if (iter != cursor.end()) {
             bsonGet(*iter, session);
-            return true;
+            return session.date_create > time(nullptr) - 3600 * 24;
         }
     }
 
@@ -191,16 +186,14 @@ void makeSession(
     mongocxx::collection &db,
     Session &session
 ) {
-    try {
+    try { // TODO
         if (getSession(cgi, db, session)) {
             // ok
             return;
         }
     } catch (...) {}
 
-    session.init(
-        genOID(), randStr()
-    );
+    new (&session) Session{genOID(), randStr()};
     dbInsert(db, session);
 }
 
