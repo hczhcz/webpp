@@ -252,6 +252,11 @@ struct Session {
     bool auth_sudo; // TODO: currently not in use
 
     time_t date_create;
+
+    Session() {} // uninitialized struct
+
+    Session(const std::string &to_id, const std::string &to_key):
+        _id{to_id}, key{to_key}, date_create{time(nullptr)} {}
 };
 
 RPP_TYPE_OBJECT(

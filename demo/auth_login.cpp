@@ -36,7 +36,7 @@ void exec(cgicc::FCgiCC<> &cgi) {
     using namespace bsoncxx::builder::stream;
 
     User user;
-    if (dbGetOneF(
+    if (dbGetOneFiltered(
         db_user, user,
         document{} << "name" << args.name << finalize,
         false
