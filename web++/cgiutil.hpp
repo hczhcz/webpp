@@ -194,31 +194,3 @@ public:
 };
 
 }
-
-namespace wpp {
-
-// execute a FastCGI (+CGICC) event loop
-template <class Env, class In, class Out, class Err, class E>
-void fcgiccExec(
-    void (&func)(cgicc::FCgiCC<Env, In, Out, Err> &),
-    void (&except)(const E &)
-) {
-    FCGX_Request request;
-
-    FCGX_Init();
-    FCGX_InitRequest(&request, 0, 0);
-
-    while (FCGX_Accept_r(&request) == 0) {
-        try {
-            cgicc::FCgiCC<Env, In, Out, Err> cgi{
-                request, std::cin, std::cout, std::cerr // TODO: create new stream
-            };
-
-            func(cgi);
-        } catch (const E &e) {
-            except(e);
-        }
-    }
-}
-
-}
