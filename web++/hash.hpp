@@ -1,10 +1,10 @@
 #pragma once
 
-#include <string>
-
 #include <openssl/rand.h>
 #include <openssl/sha.h>
 #include <bsoncxx/oid.hpp>
+
+#include <string>
 
 namespace wpp {
 

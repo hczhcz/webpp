@@ -1,9 +1,9 @@
 #pragma once
 
+#include "reflection++/accessor_infer.hpp"
+
 #include <memory>
 #include <vector>
-
-#include "reflection++/accessor_infer.hpp"
 
 namespace wpp {
 

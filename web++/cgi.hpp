@@ -1,9 +1,9 @@
 #pragma once
 
+#include "cgiutil.hpp"
+
 #include <cgicc/HTTPContentHeader.h>
 #include <cgicc/HTTPCookie.h>
-
-#include "cgiutil.hpp"
 
 namespace wpp {
 
