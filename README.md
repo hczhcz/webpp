@@ -8,4 +8,4 @@ See `/demo` or [hczhcz/bookstore](https://github.com/hczhcz/bookstore/) for more
 License
 ---
 
-Tell me if you need a licensed version :)
+LGPL v3 applies by default.
