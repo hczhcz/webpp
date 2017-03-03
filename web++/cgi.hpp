@@ -7,15 +7,15 @@
 
 namespace wpp {
 
-const char content_type_text[]{
+static const char content_type_text[]{
     "text/plain; charset=utf-8"
 };
-const char content_type_json[]{
+static const char content_type_json[]{
     "application/json; charset=utf-8"
 };
 
-const char session_tag_id[]{"WPP_SESSION_ID"};
-const char session_tag_key[]{"WPP_SESSION_KEY"};
+static const char session_tag_id[]{"WPP_SESSION_ID"};
+static const char session_tag_key[]{"WPP_SESSION_KEY"};
 
 // execute a FastCGI (+CGICC) event loop
 template <class Env, class In, class Out, class Err, class E>
